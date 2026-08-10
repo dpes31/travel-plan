@@ -8,6 +8,7 @@ const home = await readFile("index.html", "utf8");
 const detail = await readFile("trips/yeosu-2026-08/index.html", "utf8");
 const tongyeongDetail = await readFile("trips/tongyeong-geoje-2026-07/index.html", "utf8");
 const detailScript = await readFile("scripts/detail.js", "utf8");
+const appname = "https://github.com/dpes31/travel-plan";
 if (!home.includes('id="trip-list"')) throw new Error("홈 목록 컨테이너 누락");
 for (const id of ["day1", "day2", "day3", "day1-luge", "day2-yacht", "day2-gyeongwon", "day3-gyeongdo"]) {
   if (!detail.includes(`id="${id}"`)) throw new Error(`상세 앵커 누락: ${id}`);
@@ -18,4 +19,25 @@ for (const id of ["day1", "day2", "day3", "day4", "tg-day2-samchingi", "tg-day2-
 if (!detail.includes('a[aria-current="true"]')) throw new Error("여수 DAY 활성 스타일 누락");
 if (!tongyeongDetail.includes('a[aria-current="true"]')) throw new Error("통영·거제 DAY 활성 스타일 누락");
 if (!detailScript.includes("updateActiveDay")) throw new Error("DAY 스크롤 연동 로직 누락");
-console.log("travel-plan structural checks passed");
+
+let nmapLinkCount = 0;
+for (const [name, html] of [["여수", detail], ["통영·거제", tongyeongDetail]]) {
+  const anchors = [...html.matchAll(/<a\b([^>]*)href="([^"]+)"([^>]*)>([^<]*)<\/a>/g)];
+  for (const match of anchors) {
+    const attributes = `${match[1]} ${match[3]}`;
+    const href = match[2];
+    const label = match[4].trim();
+    const isMapButton = /(지도|주차장|도착지)/.test(label);
+    if (isMapButton && !href.startsWith("nmap://")) throw new Error(`${name} 지도 버튼이 앱 딥링크가 아님: ${label} ${href}`);
+    if (!href.startsWith("nmap://")) continue;
+    nmapLinkCount += 1;
+    const url = new URL(href);
+    if (url.hostname !== "search") throw new Error(`${name} 지원하지 않는 nmap 액션: ${href}`);
+    if (!url.searchParams.get("query")?.trim()) throw new Error(`${name} nmap 검색어 누락: ${href}`);
+    if (url.searchParams.get("appname") !== appname) throw new Error(`${name} nmap appname 오류: ${href}`);
+    if (/target\s*=\s*"_blank"/.test(attributes)) throw new Error(`${name} nmap 링크에 target=_blank 사용: ${label}`);
+  }
+  if (/(?:m\.)?map\.naver\.com/.test(html)) throw new Error(`${name} 웹 지도 검색 링크가 남아 있습니다.`);
+}
+if (nmapLinkCount < 1) throw new Error("nmap 지도 링크가 없습니다.");
+console.log(`travel-plan structural checks passed · ${nmapLinkCount} Naver Map deep links`);
