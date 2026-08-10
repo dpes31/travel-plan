@@ -19,6 +19,11 @@ for (const id of ["day1", "day2", "day3", "day4", "tg-day2-samchingi", "tg-day2-
 if (!detail.includes('a[aria-current="true"]')) throw new Error("여수 DAY 활성 스타일 누락");
 if (!tongyeongDetail.includes('a[aria-current="true"]')) throw new Error("통영·거제 DAY 활성 스타일 누락");
 if (!detailScript.includes("updateActiveDay")) throw new Error("DAY 스크롤 연동 로직 누락");
+for (const [name, html] of [["여수", detail], ["통영·거제", tongyeongDetail]]) {
+  if (!html.includes('.btn[href^="nmap://"]{background:#03c75a')) throw new Error(`${name} 네이버지도 버튼 초록색 스타일 누락`);
+}
+if (detail.includes("newjplusps.kr/Y/userGuide")) throw new Error("폐기된 모아모아 이용안내 링크가 남아 있습니다.");
+if ((detail.match(/https:\/\/www\.yeogi\.com\/domestic-accommodations\/84867/g) || []).length !== 2) throw new Error("모아모아 숙소정보 링크가 두 위치에 동기화되지 않았습니다.");
 
 let nmapLinkCount = 0;
 let exactPlaceLinkCount = 0;
