@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173d35">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>우리 가족 여행</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/app-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles/home.css">
+  <script src="/scripts/home.js" defer></script>
+</head>
+<body>
+  <main class="archive-shell">
+    <header class="archive-header">
+      <div class="brand-mark" aria-hidden="true"><span></span><i></i></div>
+      <div>
+        <p class="eyebrow">FAMILY TRAVEL ARCHIVE</p>
+        <h1>우리 가족 여행</h1>
+      </div>
+    </header>
+
+    <section class="intro" aria-labelledby="archive-copy">
+      <p id="archive-copy">다녀온 곳과 앞으로 갈 곳을<br><strong>날짜와 지역으로 차곡차곡.</strong></p>
+    </section>
+
+    <section class="finder" aria-label="여행계획서 찾기">
+      <label class="search-box">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+        <input id="trip-search" type="search" inputmode="search" autocomplete="off" placeholder="여행지·맛집·카페 검색" aria-label="여행지, 맛집, 카페 검색">
+        <button id="search-clear" class="search-clear" type="button" aria-label="검색어 지우기">×</button>
+      </label>
+
+      <div class="filter-block">
+        <span class="filter-label">지역</span>
+        <div id="region-filters" class="filter-row" role="group" aria-label="지역 필터"></div>
+      </div>
+      <div id="city-block" class="filter-block" hidden>
+        <span class="filter-label">도시</span>
+        <div id="city-filters" class="filter-row" role="group" aria-label="도시 필터"></div>
+      </div>
+    </section>
+
+    <section class="trip-section" aria-labelledby="trip-list-title">
+      <div class="section-heading">
+        <h2 id="trip-list-title">여행계획서</h2>
+        <span id="trip-count" aria-live="polite"></span>
+      </div>
+      <div id="search-context" class="search-context" hidden></div>
+      <div id="trip-list" class="trip-list"></div>
+      <div id="empty-state" class="empty-state" hidden>
+        <span aria-hidden="true">⌕</span>
+        <strong>찾는 여행계획서가 없습니다.</strong>
+        <p>지역이나 장소 이름을 다시 입력해 보세요.</p>
+      </div>
+    </section>
+
+    <footer>다음 여행도 이곳에 이어집니다.</footer>
+  </main>
+  <noscript>여행계획서 검색과 필터를 사용하려면 JavaScript를 켜주세요.</noscript>
+</body>
+</html>
