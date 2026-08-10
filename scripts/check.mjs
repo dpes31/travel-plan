@@ -21,6 +21,7 @@ if (!tongyeongDetail.includes('a[aria-current="true"]')) throw new Error("통영
 if (!detailScript.includes("updateActiveDay")) throw new Error("DAY 스크롤 연동 로직 누락");
 
 let nmapLinkCount = 0;
+let verifiedShareLinkCount = 0;
 for (const [name, html] of [["여수", detail], ["통영·거제", tongyeongDetail]]) {
   const anchors = [...html.matchAll(/<a\b([^>]*)href="([^"]+)"([^>]*)>([^<]*)<\/a>/g)];
   for (const match of anchors) {
@@ -28,7 +29,13 @@ for (const [name, html] of [["여수", detail], ["통영·거제", tongyeongDeta
     const href = match[2];
     const label = match[4].trim();
     const isMapButton = /(지도|주차장|도착지)/.test(label);
-    if (isMapButton && !href.startsWith("nmap://")) throw new Error(`${name} 지도 버튼이 앱 딥링크가 아님: ${label} ${href}`);
+    const isVerifiedShare = href.startsWith("https://naver.me/") && /data-map-verified="user"/.test(attributes);
+    if (isMapButton && !href.startsWith("nmap://") && !isVerifiedShare) throw new Error(`${name} 지도 버튼이 검증된 앱 링크가 아님: ${label} ${href}`);
+    if (isVerifiedShare) {
+      verifiedShareLinkCount += 1;
+      if (!/^https:\/\/naver\.me\/[A-Za-z0-9]+$/.test(href)) throw new Error(`${name} 잘못된 네이버 공유 링크: ${href}`);
+      continue;
+    }
     if (!href.startsWith("nmap://")) continue;
     nmapLinkCount += 1;
     const url = new URL(href);
@@ -40,4 +47,4 @@ for (const [name, html] of [["여수", detail], ["통영·거제", tongyeongDeta
   if (/(?:m\.)?map\.naver\.com/.test(html)) throw new Error(`${name} 웹 지도 검색 링크가 남아 있습니다.`);
 }
 if (nmapLinkCount < 1) throw new Error("nmap 지도 링크가 없습니다.");
-console.log(`travel-plan structural checks passed · ${nmapLinkCount} Naver Map deep links`);
+console.log(`travel-plan structural checks passed · ${nmapLinkCount} nmap deep links · ${verifiedShareLinkCount} verified Naver share links`);
