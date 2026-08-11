@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:none">
+  <symbol id="icon-food" viewBox="0 0 24 24"><path d="M7 3v7m-3-7v4a3 3 0 0 0 6 0V3M7 10v11M17 3v18M17 3c-3 2-3 7 0 9"/></symbol>
+  <symbol id="icon-cafe" viewBox="0 0 24 24"><path d="M5 8h12v7a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V8Z"/><path d="M17 10h2a2 2 0 0 1 0 4h-2M8 3v2m4-2v2m4-2v2"/></symbol>
+  <symbol id="icon-stay" viewBox="0 0 24 24"><path d="m3 11 9-7 9 7v9H3v-9Z"/><path d="M9 20v-6h6v6"/></symbol>
+  <symbol id="icon-activity" viewBox="0 0 24 24"><path d="M4 15h16l-2-6H8l-4 6Z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M10 9V6h5l2 3"/></symbol>
+  <symbol id="icon-boat" viewBox="0 0 24 24"><path d="M4 14h16l-2 5H6l-2-5Z"/><path d="M12 4v10M12 5l6 7h-6M12 7l-5 5h5"/><path d="M3 21c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1 2-1 3-1"/></symbol>
+  <symbol id="icon-ferry" viewBox="0 0 24 24"><path d="M5 10h14l2 6-4 4H7l-4-4 2-6Z"/><path d="M8 10V6h8v4M10 6V3h4v3M4 22c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1"/></symbol>
+  <symbol id="icon-nature" viewBox="0 0 24 24"><path d="M12 21V10M6 21h12M12 4c-5 0-8 3-8 7 4 1 7 0 8-3 1 3 4 4 8 3 0-4-3-7-8-7Z"/></symbol>
+  <symbol id="icon-place" viewBox="0 0 24 24"><path d="M4 20h16M6 20V9h12v11M9 9V5h6v4M9 13h2m2 0h2m-6 4h2m2 0h2"/></symbol>
+</svg>

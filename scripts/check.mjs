@@ -10,7 +10,7 @@ const tongyeongDetail = await readFile("trips/tongyeong-geoje-2026-07/index.html
 const detailScript = await readFile("scripts/detail.js", "utf8");
 const appname = "https://github.com/dpes31/travel-plan";
 if (!home.includes('id="trip-list"')) throw new Error("홈 목록 컨테이너 누락");
-for (const id of ["day1", "day2", "day3", "day1-luge", "day2-yacht", "day2-gyeongwon", "day3-gyeongdo"]) {
+for (const id of ["day1", "day2", "day3", "day1-luge", "day1-busker", "stay-rnb", "day2-yacht", "day2-gyeongwon", "day3-gyeongdo"]) {
   if (!detail.includes(`id="${id}"`)) throw new Error(`상세 앵커 누락: ${id}`);
 }
 for (const id of ["day1", "day2", "day3", "day4", "tg-day2-samchingi", "tg-day2-yacht", "tg-day3-oedo", "tg-day4-garden"]) {
@@ -22,8 +22,9 @@ if (!detailScript.includes("updateActiveDay")) throw new Error("DAY 스크롤 �
 for (const [name, html] of [["여수", detail], ["통영·거제", tongyeongDetail]]) {
   if (!html.includes('.btn[href^="nmap://"]{background:#03c75a')) throw new Error(`${name} 네이버지도 버튼 초록색 스타일 누락`);
 }
-if (detail.includes("newjplusps.kr/Y/userGuide")) throw new Error("폐기된 모아모아 이용안내 링크가 남아 있습니다.");
-if ((detail.match(/https:\/\/www\.yeogi\.com\/domestic-accommodations\/84867/g) || []).length !== 2) throw new Error("모아모아 숙소정보 링크가 두 위치에 동기화되지 않았습니다.");
+if (/모아모아|newjplusps\.kr\/Y\/userGuide|domestic-accommodations\/84867/.test(detail)) throw new Error("교체 전 모아모아 숙소 정보가 남아 있습니다.");
+if ((detail.match(/%EC%95%8C%EC%95%A4%EB%B9%84%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4%ED%98%B8%ED%85%94%20%EC%97%AC%EC%88%98%20%EB%AC%B8%EC%88%98%EB%A1%9C%2058/g) || []).length !== 2) throw new Error("알앤비비즈니스호텔 지도 링크가 두 위치에 동기화되지 않았습니다.");
+if (detail.includes('id="day2-busker"')) throw new Error("버스커의 이전 DAY 2 앵커가 남아 있습니다.");
 
 let nmapLinkCount = 0;
 let exactPlaceLinkCount = 0;

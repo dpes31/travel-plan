@@ -17,11 +17,11 @@
 
   function currentAnchor() {
     const points = [...document.querySelectorAll("[data-restore-anchor]")];
-    const offset = (header?.offsetHeight || 0) + 24;
-    let current = points[0]?.id || "";
+    const offset = (header?.offsetHeight || 0) + (dayNavigation?.offsetHeight || 0) + 32;
+    let current = points.find(point => point.id)?.id || "";
     for (const point of points) {
-      if (point.getBoundingClientRect().top <= offset) current = point.id;
-      else break;
+      if (point.getBoundingClientRect().top > offset) break;
+      if (point.id) current = point.id;
     }
     return current;
   }
@@ -101,7 +101,20 @@
   document.addEventListener("click", event => {
     const link = event.target.closest("a[href]");
     if (!link) return;
-    if (dayLinks.includes(link)) setActiveDay(link);
+    if (dayLinks.includes(link)) {
+      event.preventDefault();
+      isRestoring = true;
+      setActiveDay(link);
+      const target = document.querySelector(link.getAttribute("href"));
+      target?.scrollIntoView({ block: "start" });
+      history.replaceState(null, "", `${location.pathname}${location.search}`);
+      setTimeout(() => {
+        isRestoring = false;
+        setActiveDay(link);
+        savePosition();
+      }, 380);
+      return;
+    }
     savePosition();
   }, true);
   window.addEventListener("scroll", () => {
