@@ -1,4 +1,4 @@
-const CACHE_VERSION = "family-travel-v8";
+const CACHE_VERSION = "family-travel-v9";
 const CACHE = CACHE_VERSION;
 const SHELL = ["/", "/styles/home.css", "/scripts/home.js", "/data/trips.json", "/assets/app-icon.svg", "/assets/travel-icons.svg", "/trips/yeosu-2026-08/", "/trips/tongyeong-geoje-2026-07/"];
 self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))));

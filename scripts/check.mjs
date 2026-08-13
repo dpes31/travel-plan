@@ -10,7 +10,7 @@ const tongyeongDetail = await readFile("trips/tongyeong-geoje-2026-07/index.html
 const detailScript = await readFile("scripts/detail.js", "utf8");
 const appname = "https://github.com/dpes31/travel-plan";
 if (!home.includes('id="trip-list"')) throw new Error("홈 목록 컨테이너 누락");
-for (const id of ["day1", "day2", "day3", "day1-luge", "day1-busker", "stay-rnb", "day2-yacht", "day2-gyeongwon", "day3-gyeongdo"]) {
+for (const id of ["day1", "day2", "day3", "day1-luge", "day1-busker", "stay-rnb", "stay-goldbeach", "day2-yacht", "day2-hamel", "day2-gyeongwon", "day3-gyeongdo"]) {
   if (!detail.includes(`id="${id}"`)) throw new Error(`상세 앵커 누락: ${id}`);
 }
 for (const id of ["day1", "day2", "day3", "day4", "tg-day2-samchingi", "tg-day2-yacht", "tg-day3-oedo", "tg-day4-garden"]) {
