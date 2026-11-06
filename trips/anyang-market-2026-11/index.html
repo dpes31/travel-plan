@@ -314,11 +314,11 @@ function acceptServerState(data){
   renderMigration();
 }
 async function refreshFamily(initial=false){
-  if(!familyToken||pollBusy||requestBusy||pending.length||familyMode==="denied"||document.hidden)return;
+  if(!familyToken||pollBusy||requestBusy||(!initial&&pending.length)||familyMode==="denied"||document.hidden)return;
   pollBusy=true;
   try{
     const data=await fetchState();
-    if(!requestBusy&&!pending.length)acceptServerState(data);
+    if(!requestBusy&&(initial||!pending.length))acceptServerState(data);
     if(initial)flushPending();
   }catch(error){
     familyMode=error.auth?"denied":"error";
