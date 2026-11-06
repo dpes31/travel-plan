@@ -35,7 +35,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .choose[aria-pressed="true"]{background:#e3f0e7;border-color:#a4c6b3}.map{border-color:var(--naver);background:var(--naver);color:#fff}.map:focus-visible{outline-color:#087e45}
 .empty{padding:30px 12px;text-align:center;color:var(--muted);font-size:12px}
 .site-foot{text-align:center;color:#89968f;font-size:10px;line-height:1.7;padding-top:23px}.site-foot a{text-decoration:underline;text-underline-offset:3px}
-.quick-nav{display:none;position:fixed;z-index:19;bottom:calc(16px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);align-items:center;justify-content:center;gap:8px;max-width:calc(100% - 30px);min-height:42px;padding:0 18px;border-radius:999px;background:var(--forest);color:white;box-shadow:0 10px 28px rgba(23,61,53,.24);font-size:12px;font-weight:800}.quick-nav.show{display:flex}
+.sync-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:9px 11px;border:1px solid #d1dcd3;border-radius:10px;background:#ecf2eb;color:#486255;font-size:11px;line-height:1.4}.sync-strip strong{font-weight:800}.sync-share{border:1px solid #a2bcb0;border-radius:8px;background:#fff;padding:6px 9px;color:var(--forest);font-size:11px;font-weight:800}.sync-strip.is-error{background:#fff5ed;color:#9b493a;border-color:#edc5b4}.migration-banner{padding:12px 13px;margin-top:9px;border:1px solid #c2d3c4;border-radius:10px;background:#fffdf8;font-size:11px;color:#405f4f;line-height:1.6}.migration-banner[hidden]{display:none}.migration-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.migration-actions button{padding:8px 10px;border:1px solid #bacbc0;border-radius:8px;background:#fff;color:var(--forest);font-size:11px;font-weight:800}.migration-actions button.primary{background:var(--forest);color:white}.migration-actions button:disabled{opacity:.5}.quick-nav{display:none;position:fixed;z-index:19;bottom:calc(16px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);align-items:center;justify-content:center;gap:8px;max-width:calc(100% - 30px);min-height:42px;padding:0 18px;border-radius:999px;background:var(--forest);color:white;box-shadow:0 10px 28px rgba(23,61,53,.24);font-size:12px;font-weight:800}.quick-nav.show{display:flex}
 @media(min-width:720px){.shell{box-shadow:0 0 60px rgba(31,44,41,.13)}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -58,6 +58,17 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
     <a class="market-map" href="nmap://search?query=%EC%95%88%EC%96%91%EC%A4%91%EC%95%99%EC%8B%9C%EC%9E%A5&amp;appname=https%3A%2F%2Ftravel-plan-ashen.vercel.app%2Ftrips%2Fanyang-market-2026-11%2F">안양중앙시장 네이버지도 ↗</a>
   </div>
   <main class="content">
+    <div class="sync-strip" id="sync-strip" role="status" aria-live="polite">
+      <span id="sync-message">저장 상태 확인 중</span>
+      <button type="button" class="sync-share" id="sync-share" hidden>가족 링크 공유</button>
+    </div>
+    <div class="migration-banner" id="migration-banner" hidden>
+      <div id="migration-message"></div>
+      <div class="migration-actions">
+        <button type="button" class="primary" id="migration-import">기존 선택 합치기</button>
+        <button type="button" id="migration-skip">건너뛰기</button>
+      </div>
+    </div>
     <section id="picked" aria-labelledby="picked-title">
       <div class="section-top">
         <div><h2 id="picked-title">선택한 장소</h2></div>
@@ -82,25 +93,109 @@ const PLACES = [{"id":"chunhajudong","category":"market","name":"춘하추동","
 const CATEGORIES=[{id:"all",label:"전체"},{id:"market",label:"시장 먹거리"},{id:"nearby",label:"근처 맛집·카페"},{id:"see",label:"볼거리"}];
 const STORAGE_KEY="travelArchive:anyang-market:picked:v1";
 const POSITION_KEY="travelArchive:anyang-market:scroll:v1";
+const FAMILY_KEY="travelArchive:anyang-market:family-link:v1";
+const MIGRATION_KEY="travelArchive:anyang-market:family-imported:v1";
+const QUEUE_KEY="travelArchive:anyang-market:pending-family:v1";
 const APP_NAME="https://travel-plan-ashen.vercel.app/trips/anyang-market-2026-11/";
+const API_URL="/api/family-picks";
+const TOKEN_PATTERN=/^[A-Za-z0-9_-]{43,64}$/;
 let picked=[];
+let remotePicked=[];
 let activeCategory="all";
+let familyToken="";
+let familyMode="local";
+let pending=[];
+let lastVersion=-1;
+let requestBusy=false;
+let pollBusy=false;
+let migrationBusy=false;
+let migrationDone=false;
+let localOriginal=[];
 const pickedContent=document.querySelector("#picked-content");
 const candidateContent=document.querySelector("#candidate-content");
 const filters=document.querySelector("#filters");
+const syncStrip=document.querySelector("#sync-strip");
+const syncMessage=document.querySelector("#sync-message");
+const syncShare=document.querySelector("#sync-share");
+const migrationBanner=document.querySelector("#migration-banner");
+
 function loadPicked(){
   try{
     const value=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
     return Array.isArray(value)?value.filter((id,index)=>PLACES.some(place=>place.id===id)&&value.indexOf(id)===index):[];
   }catch(_){return [];}
 }
-function savePicked(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(picked));}catch(_){}}
+function saveLocalPicked(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(picked));}catch(_){}
+}
+function getFamilyToken(){
+  const fragment=new URLSearchParams(window.location.hash.replace(/^#/,"")).get("family");
+  if(fragment!==null){
+    if(!TOKEN_PATTERN.test(fragment))return "";
+    try{localStorage.setItem(FAMILY_KEY,fragment);}catch(_){}
+    window.history.replaceState(null,"",window.location.pathname+window.location.search);
+    return fragment;
+  }
+  try{
+    const saved=localStorage.getItem(FAMILY_KEY);
+    return saved&&TOKEN_PATTERN.test(saved)?saved:"";
+  }catch(_){return "";}
+}
+function loadPending(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(QUEUE_KEY)||"null");
+    return saved&&saved.key===familyToken.slice(-8)&&Array.isArray(saved.ops)?
+      saved.ops.slice(0,40).filter(op=>op&&["select","deselect","import"].includes(op.action)&&
+      typeof op.operationId==="string"):[];
+  }catch(_){return [];}
+}
+function persistPending(){
+  try{localStorage.setItem(QUEUE_KEY,JSON.stringify({key:familyToken.slice(-8),ops:pending}));}catch(_){}
+}
+function newId(){
+  return window.crypto.randomUUID();
+}
+function applyOperation(ids,op){
+  const copy=ids.slice();
+  if(op.action==="import"){
+    for(const id of op.ids||[])if(PLACES.some(p=>p.id===id)&&!copy.includes(id))copy.push(id);
+  }else if(op.action==="select"){
+    const at=copy.indexOf(op.id);if(at>=0)copy.splice(at,1);
+    if(PLACES.some(p=>p.id===op.id))copy.unshift(op.id);
+  }else if(op.action==="deselect"){
+    const at=copy.indexOf(op.id);if(at>=0)copy.splice(at,1);
+  }
+  return copy;
+}
+function refreshView(){
+  picked=pending.reduce(applyOperation,remotePicked);
+  renderPlaces();
+}
 function nmapUrl(place){return "nmap://search?query="+encodeURIComponent(place.query)+"&appname="+encodeURIComponent(APP_NAME);}
 function make(tag,className,text){
   const node=document.createElement(tag);
   if(className)node.className=className;
   if(text!==undefined)node.textContent=text;
   return node;
+}
+function choosePlace(place){
+  if(!familyToken){
+    if(picked.includes(place.id))picked=picked.filter(id=>id!==place.id);
+    else picked.unshift(place.id);
+    saveLocalPicked();
+    renderPlaces();
+    return;
+  }
+  if(familyMode==="connecting"||familyMode==="denied")return;
+  pending.push({
+    action:picked.includes(place.id)?"deselect":"select",
+    id:place.id,
+    operationId:newId()
+  });
+  persistPending();
+  refreshView();
+  renderSync();
+  flushPending();
 }
 function makePlace(place,index,isPicked){
   const article=make("article","place"+(isPicked?" is-picked":""));
@@ -115,14 +210,10 @@ function makePlace(place,index,isPicked){
   const actions=make("div","actions");
   const choose=make("button","choose",isPicked?"✓ 선택됨 · 해제":"＋ 이곳 선택");
   choose.type="button";
+  choose.disabled=!!familyToken&&(familyMode==="connecting"||familyMode==="denied");
   choose.setAttribute("aria-pressed",String(isPicked));
   choose.setAttribute("aria-label",place.name+(isPicked?" 선택 해제":" 후보 선택"));
-  choose.addEventListener("click",function(){
-    if(picked.includes(place.id)){picked=picked.filter(id=>id!==place.id);}
-    else{picked.unshift(place.id);}
-    savePicked();
-    renderPlaces();
-  });
+  choose.addEventListener("click",()=>choosePlace(place));
   const map=make("a","map","네이버지도 앱 열기 ↗");
   map.href=nmapUrl(place);
   map.setAttribute("aria-label",place.name+" 네이버지도 앱에서 검색");
@@ -150,7 +241,7 @@ function renderFilters(){
     btn.type="button";
     btn.dataset.category=cat.id;
     btn.setAttribute("aria-pressed",String(cat.id===activeCategory));
-    btn.addEventListener("click",function(){selectCategory(cat.id,false);});
+    btn.addEventListener("click",()=>selectCategory(cat.id,false));
     filters.append(btn);
   });
   document.querySelectorAll(".category-jump").forEach(btn=>{
@@ -180,6 +271,90 @@ function renderPlaces(){
     candidateContent.replaceChildren(make("div","empty",PLACES.length===picked.length?"모든 장소를 선택했습니다.":"이 조건에 해당하는 미선택 후보가 없습니다."));
   }
 }
+function renderSync(){
+  syncShare.hidden=!familyToken;
+  syncStrip.classList.toggle("is-error",["denied","error"].includes(familyMode));
+  if(!familyToken){syncMessage.textContent="이 기기에만 저장 중 · 가족 공유 링크로 접속하면 동기화됩니다.";return;}
+  if(familyMode==="connecting"){syncMessage.textContent="가족 공통 목록 연결 중…";return;}
+  if(familyMode==="denied"){syncMessage.textContent="가족 링크 인증에 실패했습니다. 올바른 공유 링크로 다시 접속해 주세요.";return;}
+  if(familyMode==="error"){syncMessage.textContent="연결 지연 · 변경 사항을 보관하고 다시 전송 중입니다.";return;}
+  syncMessage.textContent=pending.length?"가족 목록 · 변경 사항 저장 중…":"가족 공통 목록 · 동기화됨";
+}
+function renderMigration(){
+  if(!familyToken||familyMode==="connecting"||familyMode==="denied"||migrationDone){
+    migrationBanner.hidden=true;return;
+  }
+  const missing=localOriginal.filter(id=>!remotePicked.includes(id));
+  if(!missing.length||pending.some(op=>op.action==="import")){
+    migrationBanner.hidden=true;
+    if(!missing.length){migrationDone=true;try{localStorage.setItem(MIGRATION_KEY,"1");}catch(_){}}
+    return;
+  }
+  migrationBanner.hidden=false;
+  document.querySelector("#migration-message").textContent="이 기기에 이전에 선택한 "+missing.length+"곳이 있습니다. 가족 공통 목록에 추가할까요? 기존 공유 선택은 유지됩니다.";
+  document.querySelector("#migration-import").disabled=migrationBusy;
+}
+function requestHeaders(includeJson=false){
+  return {"Authorization":"Bearer "+familyToken,...(includeJson?{"Content-Type":"application/json"}:{})};
+}
+async function fetchState(){
+  const response=await fetch(API_URL,{method:"GET",headers:requestHeaders(),cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer"});
+  if(response.status===401){const e=new Error("Unauthorized");e.auth=true;throw e;}
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  return await response.json();
+}
+function acceptServerState(data){
+  if(!data||!Array.isArray(data.selected)||!Number.isSafeInteger(data.version))throw new Error("Invalid response");
+  if(data.version<lastVersion)return;
+  lastVersion=data.version;
+  remotePicked=data.selected.filter(id=>PLACES.some(p=>p.id===id));
+  refreshView();
+  if(familyMode!=="denied")familyMode="connected";
+  renderSync();
+  renderMigration();
+}
+async function refreshFamily(initial=false){
+  if(!familyToken||pollBusy||requestBusy||pending.length||familyMode==="denied"||document.hidden)return;
+  pollBusy=true;
+  try{
+    const data=await fetchState();
+    if(!requestBusy&&!pending.length)acceptServerState(data);
+    if(initial)flushPending();
+  }catch(error){
+    familyMode=error.auth?"denied":"error";
+    renderSync();
+  }finally{pollBusy=false;}
+}
+async function flushPending(){
+  if(!familyToken||requestBusy||familyMode==="denied"||familyMode==="connecting")return;
+  requestBusy=true;
+  try{
+    while(pending.length){
+      const op=pending[0];
+      const response=await fetch(API_URL,{
+        method:"POST",headers:requestHeaders(true),body:JSON.stringify(op),
+        cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer"
+      });
+      if(response.status===401){const e=new Error("Unauthorized");e.auth=true;throw e;}
+      if(!response.ok)throw new Error("HTTP "+response.status);
+      const data=await response.json();
+      pending.shift();
+      persistPending();
+      acceptServerState(data);
+      if(op.action==="import"){
+        migrationDone=true;
+        try{localStorage.setItem(MIGRATION_KEY,"1");}catch(_){}
+      }
+    }
+  }catch(error){
+    familyMode=error.auth?"denied":"error";
+    renderSync();
+  }finally{
+    requestBusy=false;
+    renderSync();
+    renderMigration();
+  }
+}
 function saveScroll(){try{sessionStorage.setItem(POSITION_KEY,String(window.scrollY));}catch(_){}}
 function restoreScroll(){
   try{
@@ -190,14 +365,68 @@ function restoreScroll(){
     }
   }catch(_){}
 }
+async function shareFamilyLink(){
+  if(!familyToken)return;
+  const link=APP_NAME+"#family="+familyToken;
+  try{
+    if(navigator.share)await navigator.share({title:"안양중앙시장 가족 여행 목록",url:link});
+    else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);syncMessage.textContent="가족 링크를 복사했습니다.";}
+    else window.prompt("가족 링크를 복사해 공유해 주세요.",link);
+  }catch(error){
+    if(error?.name!=="AbortError")window.prompt("가족 링크를 복사해 공유해 주세요.",link);
+  }
+}
+async function importOriginal(){
+  if(migrationBusy||familyMode==="denied")return;
+  const ids=localOriginal.filter(id=>!remotePicked.includes(id));
+  if(!ids.length){migrationDone=true;renderMigration();return;}
+  migrationBusy=true;
+  pending.push({action:"import",ids,operationId:newId()});
+  persistPending();
+  refreshView();
+  renderSync();
+  renderMigration();
+  await flushPending();
+  migrationBusy=false;
+  renderMigration();
+}
+function skipOriginal(){
+  migrationDone=true;
+  try{localStorage.setItem(MIGRATION_KEY,"1");}catch(_){}
+  renderMigration();
+}
 document.querySelectorAll(".category-jump").forEach(button=>{
   button.addEventListener("click",()=>selectCategory(button.dataset.category,true));
 });
+document.querySelector("#sync-share").addEventListener("click",shareFamilyLink);
+document.querySelector("#migration-import").addEventListener("click",importOriginal);
+document.querySelector("#migration-skip").addEventListener("click",skipOriginal);
 window.addEventListener("pagehide",saveScroll);
-window.addEventListener("pageshow",function(event){if(event.persisted)restoreScroll();});
-picked=loadPicked();
+window.addEventListener("pageshow",event=>{if(event.persisted){restoreScroll();refreshFamily();}});
+window.addEventListener("focus",()=>{refreshFamily();if(pending.length)flushPending();});
+window.addEventListener("online",()=>{refreshFamily();if(pending.length)flushPending();});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){refreshFamily();if(pending.length)flushPending();}});
+localOriginal=loadPicked();
+familyToken=getFamilyToken();
+if(familyToken){
+  familyMode="connecting";
+  picked=[];
+  pending=loadPending();
+  try{migrationDone=localStorage.getItem(MIGRATION_KEY)==="1";}catch(_){}
+}else{
+  picked=localOriginal;
+}
 renderPlaces();
+renderSync();
+renderMigration();
 restoreScroll();
+if(familyToken)refreshFamily(true);
+window.setInterval(()=>{
+  if(!familyToken||document.hidden||familyMode==="denied")return;
+  if(pending.length)flushPending();
+  else refreshFamily();
+},10000);
+
 </script>
 </body>
 </html>
