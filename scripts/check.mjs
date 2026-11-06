@@ -63,10 +63,14 @@ const anyang = trips.find(trip => trip.id === "anyang-market-2026-11");
 if (!anyang || anyang.href !== "/trips/anyang-market-2026-11/") throw new Error("안양 목록 연결 누락");
 if (!serviceWorker.includes("/trips/anyang-market-2026-11/")) throw new Error("안양 PWA 캐시 누락");
 if (!anyangDetail.includes("const PLACES =") || !anyangDetail.includes("picked.unshift(place.id)") || !anyangDetail.includes("localStorage.setItem(STORAGE_KEY")) throw new Error("안양 선택·정렬·저장 로직 누락");
-const anyangIds = ["chunhajudong","seoul","jangnae","hongdukkae","pia","omuk","samdeokbbq","gamjatang","stag","samdeokpark","firststreet","artpark","museum"];
+const anyangCount = (anyangDetail.match(/"category":"(?:market|nearby|see)"/g) || []).length;
+if (anyangCount !== 16) throw new Error("안양 목록 수 오류: " + anyangCount);
+const anyangIds = ["chunhajudong","seoul","jangnae","hongdukkae","pia","omuk","monyeo","nongbune","samdeokbbq","gamjatang","yuseongwon","stag","elmanque","samdeokpark","artpark","museum"];
 for (const id of anyangIds) {
   if (!anyangDetail.includes('"id":"' + id + '"')) throw new Error("안양 장소 누락: " + id);
 }
+if (!anyangDetail.includes('data-category="market"') || !anyangDetail.includes('data-category="nearby"') || !anyangDetail.includes('data-category="see"') || !anyangDetail.includes("filters.scrollIntoView")) throw new Error("안양 상단 바로가기 및 자동 스크롤 누락");
+if (anyangDetail.includes('id="search"') || anyangDetail.includes('시장 먹거리 6') || anyangDetail.includes('"id":"firststreet"')) throw new Error("삭제할 검색/카운트/관광 후보 잔존");
 if (!anyangDetail.includes('href="nmap://search?') || !anyangDetail.includes("function nmapUrl(place)")) throw new Error("안양 네이버지도 앱 딥링크 누락");
 if (/(?:m\.)?map\.naver\.com/.test(anyangDetail)) throw new Error("안양 지도에 웹 링크가 포함되어 있습니다.");
 
