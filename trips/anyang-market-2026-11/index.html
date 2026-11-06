@@ -21,14 +21,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .back{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;font-size:28px;line-height:1;color:var(--forest)}.appbar-title{display:grid;gap:1px}.appbar-title b{font-size:13px}.appbar-title span{color:var(--muted);font-size:10px}
 .hero{padding:29px 21px 25px;background:linear-gradient(140deg,#173d35,#245a4f 71%,#3a746d);color:#fff}
 .eyebrow{font-size:10px;font-weight:850;letter-spacing:.13em;color:#a8d5c8}.hero h1{margin:12px 0 9px;font-size:33px;line-height:1.16;letter-spacing:-.06em}.hero p{margin:0;color:#d7e5dd;font-size:12px;line-height:1.7}
-.hero-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:17px}.hero-chip{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);font-size:11px;font-weight:750}
-.market-map{margin-left:auto;color:#fff;text-decoration:underline;text-underline-offset:4px;font-size:11px;font-weight:750}
+.hero-bottom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:7px;margin-top:17px}.hero-chip{min-width:0;min-height:46px;padding:8px 5px;border-radius:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:11px;line-height:1.3;font-weight:850;cursor:pointer}.hero-chip[aria-pressed="true"]{background:#fff;color:var(--forest);border-color:#fff;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+.market-map{display:inline-block;margin-top:13px;color:#d3e8dc;text-decoration:underline;text-underline-offset:4px;font-size:11px;font-weight:750}
 .content{padding:22px 18px 54px}
 .notice{display:flex;gap:9px;padding:13px 14px;background:#e7eee9;border-radius:12px;color:#41594f;font-size:11px;line-height:1.6}.notice b{color:var(--forest)}
 .section-top{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:26px 1px 10px}.section-top h2{font-size:20px;letter-spacing:-.04em;margin:0}.section-top p{margin:5px 0 0;font-size:11px;color:var(--muted)}.section-count{font-size:12px;color:var(--teal);font-weight:800;white-space:nowrap}
 .picked{scroll-margin-top:75px;border-top:2px solid var(--forest)}.picked-empty{padding:23px 13px;text-align:center;border:1px dashed #c8cfc9;border-radius:12px;background:rgba(255,255,255,.4);color:var(--muted);font-size:12px;line-height:1.6}
-.search{display:flex;align-items:center;gap:9px;margin-top:14px;padding:0 13px;height:43px;border:1px solid #d6d4c9;border-radius:11px;background:var(--paper)}.search svg{width:17px;stroke:var(--muted);stroke-width:2;fill:none}.search input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);font-size:13px}.search input::placeholder{color:#89938d}
-.filters{display:flex;gap:7px;overflow-x:auto;padding:14px 0 12px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{flex:none;min-height:35px;padding:0 12px;border-radius:999px;border:1px solid #d1d0c5;background:transparent;color:#64736c;font-size:11px;font-weight:800}.filter.active{background:var(--forest);color:#fff;border-color:var(--forest)}
+.filters{display:flex;gap:7px;scroll-margin-top:calc(67px + env(safe-area-inset-top));overflow-x:auto;padding:14px 0 12px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{flex:none;min-height:35px;padding:0 12px;border-radius:999px;border:1px solid #d1d0c5;background:transparent;color:#64736c;font-size:11px;font-weight:800}.filter.active{background:var(--forest);color:#fff;border-color:var(--forest)}
 .place-list{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}.place{padding:15px 13px 14px;border-bottom:1px solid var(--line)}.place:last-child{border-bottom:0}.place.is-picked{background:#f4f9f5}
 .place-top{display:flex;align-items:flex-start;gap:10px}.place-no{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:8px;background:#e9efe9;color:#58746b;font-size:11px;font-weight:850}.is-picked .place-no{background:var(--forest);color:#fff}
 .place-copy{flex:1;min-width:0}.place-line{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.place h3{font-size:16px;line-height:1.28;margin:1px 0 0;letter-spacing:-.03em}.tag{font-size:9px;font-weight:850;color:#a05e43;background:#f8ede3;padding:3px 6px;border-radius:5px}.kind{font-size:11px;color:var(--teal);font-weight:800;margin:5px 0 0}.desc{margin:10px 0 0;font-size:12px;color:#52635c;line-height:1.58}.address{margin:7px 0 0;font-size:10px;color:#818e87;line-height:1.4}
@@ -51,13 +50,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
   <div class="hero">
     <div class="eyebrow">ANYANG · LOCAL SHORTLIST</div>
     <h1>이번에는 먼저 고르고,<br>가서 결정합니다.</h1>
-    <p>안양중앙시장 노포부터 인근 볼거리까지.<br>마음에 드는 곳을 선택하면 목록 맨 위에 모입니다.</p>
-    <div class="hero-bottom">
-      <span class="hero-chip">시장 먹거리 6</span>
-      <span class="hero-chip">근처 3</span>
-      <span class="hero-chip">볼거리 4</span>
-      <a class="market-map" href="nmap://search?query=%EC%95%88%EC%96%91%EC%A4%91%EC%95%99%EC%8B%9C%EC%9E%A5&amp;appname=https%3A%2F%2Ftravel-plan-ashen.vercel.app%2Ftrips%2Fanyang-market-2026-11%2F">중앙시장 네이버지도</a>
+    <p>현지 단골 음식점부터 인근 볼거리까지.<br>마음에 드는 곳을 선택하면 목록 맨 위에 모입니다.</p>
+    <div class="hero-bottom" role="group" aria-label="후보 유형 바로가기">
+      <button type="button" class="hero-chip category-jump" data-category="market" aria-pressed="false">시장 먹거리</button>
+      <button type="button" class="hero-chip category-jump" data-category="nearby" aria-pressed="false">근처 맛집·카페</button>
+      <button type="button" class="hero-chip category-jump" data-category="see" aria-pressed="false">볼거리</button>
     </div>
+    <a class="market-map" href="nmap://search?query=%EC%95%88%EC%96%91%EC%A4%91%EC%95%99%EC%8B%9C%EC%9E%A5&amp;appname=https%3A%2F%2Ftravel-plan-ashen.vercel.app%2Ftrips%2Fanyang-market-2026-11%2F">안양중앙시장 네이버지도 ↗</a>
   </div>
   <main class="content">
     <div class="notice"><span aria-hidden="true">✓</span><div><b>선택은 방문 확정이 아닙니다.</b> 마음에 드는 장소를 후보로 모으는 기능입니다. 선택 내역은 현재 기기의 브라우저에 자동 저장됩니다.</div></div>
@@ -70,30 +69,24 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
     </section>
     <section aria-labelledby="candidates-title">
       <div class="section-top">
-        <div><h2 id="candidates-title">전체 후보</h2><p>시장 · 근처 맛집 · 볼거리 중 골라보세요.</p></div>
-        <span class="section-count" id="candidate-count">13곳</span>
+        <div><h2 id="candidates-title">전체 후보</h2><p>카테고리를 눌러 후보를 살펴보세요.</p></div>
+        <span class="section-count" id="candidate-count">16곳</span>
       </div>
-      <label class="search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
-        <input id="search" type="search" placeholder="상호·음식·장소 검색" aria-label="장소 검색" autocomplete="off">
-      </label>
       <div class="filters" id="filters" role="group" aria-label="후보 유형"></div>
       <div id="candidate-content"></div>
     </section>
-    <p class="site-foot">정보 기준 2026.11.06 · 메뉴·영업시간은 방문 전 네이버지도에서 확인<br><a href="https://naver.me/GhbrMvhh">안양중앙시장 네이버 공유 링크</a></p>
+    <p class="site-foot">2026.11.06 확인 · 현지인 방문 근거는 공개 후기·장기 운영 이력에 따른 정성 평가<br>실제 방문객 수 순위는 확인되지 않았습니다. 메뉴·영업시간은 방문 전 다시 확인<br><a href="https://naver.me/GhbrMvhh">안양중앙시장 네이버 공유 링크</a></p>
   </main>
 </div>
 <a class="quick-nav" href="#picked" id="quick-nav">선택한 장소 <span id="quick-count">0</span>곳 ↑</a>
 <script>
-const PLACES = [{"id":"chunhajudong","category":"market","name":"춘하추동","type":"순대곱창볶음","location":"안양중앙시장 순대곱창골목","description":"시장 대표 먹거리. 순대와 곱창을 양념에 볶아 먹고 볶음밥으로 마무리하는 후보입니다.","tag":"시장 대표","query":"안양중앙시장 춘하추동 순대곱창"},{"id":"seoul","category":"market","name":"서울식당","type":"순대국 · 소머리국밥","location":"안양시 만안구 냉천로 195","description":"오래된 시장 국밥집. 진한 국물과 투박한 노포 분위기를 원할 때 적합합니다.","tag":"노포","query":"안양 서울식당 냉천로 195"},{"id":"jangnae","category":"market","name":"장내동육칼","type":"육개장칼국수 · 보양수육전골","location":"안양시 만안구 안양로291번길 34","description":"시장 안에서 일반적인 분식보다 든든하고 색다른 국물·수육 요리를 먹고 싶을 때.","tag":"이색 메뉴","query":"안양 장내동육칼 안양로291번길 34"},{"id":"hongdukkae","category":"market","name":"홍두깨손칼국수 1호점","type":"손칼국수","location":"안양시 만안구 장내로119번길 18","description":"직접 썬 면과 푸짐한 양이 특징인 소박한 시장 한 끼입니다.","tag":"시장 한 끼","query":"안양 홍두깨손칼국수 1호점 장내로119번길 18"},{"id":"pia","category":"market","name":"비아김밥 중앙점","type":"멸치김밥 · 참치땡초김밥","location":"안양시 만안구 냉천로 187","description":"속재료가 풍부한 김밥. 시장 구경 중 포장하기 좋고 땡초김밥은 매울 수 있습니다.","tag":"포장 간식","query":"안양 비아김밥 중앙점 냉천로 187"},{"id":"omuk","category":"market","name":"송일형 수제어묵명인","type":"수제핫바 · 도미살 찐어묵","location":"안양시 만안구 장내로 119","description":"1982년부터 이어온 시장 어묵 전문점. 즉석 핫바와 포장용 어묵을 고를 수 있습니다.","tag":"전통 간식","query":"안양 송일형 수제어묵명인 장내로 119"},{"id":"samdeokbbq","category":"nearby","name":"삼덕바베큐","type":"돼지바베큐 · 통닭바베큐","location":"안양시 만안구 냉천로 204","description":"지역 단골의 바베큐집. 돼지바베큐가 대표 메뉴이며 오후 영업 위주입니다.","tag":"로컬 노포","query":"안양 삼덕바베큐 냉천로 204"},{"id":"gamjatang","category":"nearby","name":"원조안양감자탕","type":"콩비지감자탕","location":"안양시 만안구 만안로 204-1","description":"일반 감자탕과 구분되는 콩비지감자탕으로 알려진 안양의 오래된 식당입니다.","tag":"지역 단골","query":"안양 원조안양감자탕 만안로 204-1"},{"id":"stag","category":"nearby","name":"스태그커피","type":"독립 로스터리 카페","location":"안양시 만안구 안양로319번길 22","description":"원두 선택과 다층 공간이 특징입니다. 시장 구경 후 커피를 마시며 쉬어갈 후보입니다.","tag":"카페","query":"안양 스태그커피 안양로319번길 22"},{"id":"samdeokpark","category":"see","name":"삼덕공원","type":"가벼운 산책 · 어린이 놀이","location":"안양시 만안구 삼덕로 106","description":"옛 삼덕제지 부지에 조성된 동네 공원. 시장 방문 중 잠시 쉬기 좋은 곳입니다.","tag":"시장 근처","query":"안양 삼덕공원 삼덕로 106"},{"id":"firststreet","category":"see","name":"안양일번가","type":"상점 · 안양역 번화가","location":"안양역 일대","description":"상점과 식당이 모인 현지 번화가. 특별한 관광지보다는 구경하며 걷기 좋은 곳입니다.","tag":"도보 구경","query":"안양일번가 안양역"},{"id":"artpark","category":"see","name":"안양예술공원 · APAP8","type":"공공미술 · 야간 미디어아트","location":"안양시 만안구 예술공원 일대","description":"공공미술과 자연 산책을 함께 즐기는 별도 이동 후보. APAP8 전시는 2026.11.29까지, 야외 미디어아트는 화~일 19~22시입니다.","tag":"특별 추천","query":"안양예술공원 안양파빌리온"},{"id":"museum","category":"see","name":"김중업건축박물관","type":"건축 · 디자인 전시","location":"안양시 만안구 예술공원로103번길 4","description":"한국 근대 건축을 살펴볼 수 있는 박물관. 안양예술공원과 연계하기 좋습니다.","tag":"건축·디자인","query":"안양 김중업건축박물관 예술공원로103번길 4"}]
-;
+const PLACES = [{"id":"chunhajudong","category":"market","name":"춘하추동","type":"순대곱창볶음","location":"안양시 만안구 장내로 119 · 순대곱창골목","description":"30년 이상 운영된 순대곱창 전문점. 지역 단골 후기와 전통 골목 특화가 확인됩니다.","tag":"시장 대표","query":"안양 춘하추동 순대곱창 장내로119"},{"id":"seoul","category":"market","name":"서울식당","type":"순대국 · 소머리국밥","location":"안양시 만안구 냉천로 195","description":"오래된 시장 국밥집. 진한 국물과 투박한 노포 분위기를 원할 때 적합합니다.","tag":"노포","query":"안양 서울식당 냉천로 195"},{"id":"jangnae","category":"market","name":"장내동육칼","type":"보양수육전골 · 도가니탕","location":"안양시 만안구 안양로291번길 34","description":"도가니·우족·소꼬리 등을 활용한 보양수육전골. 지역 주민 후기와 장기 운영 이력이 확인됩니다.","tag":"이색 메뉴","query":"안양 장내동육칼 안양로291번길 34"},{"id":"hongdukkae","category":"market","name":"홍두깨손칼국수 1호점","type":"손칼국수","location":"안양시 만안구 장내로119번길 18","description":"직접 썬 면과 푸짐한 양이 특징인 소박한 시장 한 끼입니다.","tag":"시장 한 끼","query":"안양 홍두깨손칼국수 1호점 장내로119번길 18"},{"id":"pia","category":"market","name":"비아김밥 중앙점","type":"멸치김밥 · 참치땡초김밥","location":"안양시 만안구 냉천로 187","description":"속재료가 풍부한 김밥. 시장 구경 중 포장하기 좋고 땡초김밥은 매울 수 있습니다.","tag":"포장 간식","query":"안양 비아김밥 중앙점 냉천로 187"},{"id":"omuk","category":"market","name":"송일형 수제어묵명인","type":"수제핫바 · 도미살 찐어묵","location":"안양시 만안구 장내로 119 · 1층 1호","description":"1982년부터 운영된 수제어묵 전문점. 수제핫바와 도미살 찐어묵이 대표 품목입니다.","tag":"전통 간식","query":"안양 송일형 수제어묵명인 장내로 119"},{"id":"monyeo","category":"market","name":"모녀떡볶이","type":"쌀떡 떡볶이 · 순대","location":"안양중앙시장 떡볶이골목 · 냉천로 196 일대","description":"시장 방문객의 대기·재방문 후기가 반복되는 떡볶이집. 가게 단독 도로명주소는 별도 확인되지 않았습니다.","tag":"줄 서는 분식","query":"안양중앙시장 모녀떡볶이"},{"id":"nongbune","category":"market","name":"농부네찹쌀이야기 본점","type":"찹쌀꽈배기 · 도넛","location":"안양시 만안구 냉천로193번길 42","description":"인근 주민의 줄서기·재구매 후기가 보이는 찹쌀꽈배기 전문점. 간식 포장 후보입니다.","tag":"시장 간식","query":"안양 농부네찹쌀이야기 본점 냉천로193번길 42"},{"id":"samdeokbbq","category":"nearby","name":"삼덕바베큐","type":"돼지바베큐 · 통닭바베큐","location":"안양시 만안구 냉천로 204","description":"돼지바베큐와 통닭바베큐를 찾는 단골이 있는 노포. 시설·위생 평가는 엇갈려 현장에서 판단할 필요가 있습니다.","tag":"로컬 노포","query":"안양 삼덕바베큐 냉천로 204"},{"id":"gamjatang","category":"nearby","name":"원조안양감자탕","type":"콩비지감자탕","location":"안양시 만안구 만안로 204-1","description":"오래된 안양의 콩비지감자탕 전문점. 이전 매장 시절부터 재방문한 지역 주민의 후기가 확인됩니다.","tag":"지역 단골","query":"안양 원조안양감자탕 만안로 204-1"},{"id":"yuseongwon","category":"nearby","name":"유성원","type":"간짜장 · 짬뽕 · 탕수육","location":"안양시 만안구 삼덕로 90","description":"안양시가 선정한 30년 이상 운영 토종업소. 관광용 식당보다 오래된 동네 중식당을 찾을 때 적합합니다.","tag":"시 지정 노포","query":"안양 유성원 삼덕로 90"},{"id":"stag","category":"nearby","name":"스태그커피","type":"독립 로스터리 카페","location":"안양시 만안구 안양로319번길 22","description":"원두 선택과 다층 공간이 특징입니다. 시장 구경 후 커피를 마시며 쉬어갈 후보입니다.","tag":"카페","query":"안양 스태그커피 안양로319번길 22"},{"id":"elmanque","category":"nearby","name":"엘몽끄","type":"소금빵 · 베이커리 · 커피","location":"안양시 만안구 병목안로 20 · 스페이스타워 1~2층","description":"삼덕공원 근처의 넓은 베이커리 카페. 소금빵·디저트와 공간에 대한 지역 방문 후기가 축적돼 있습니다.","tag":"동네 베이커리","query":"안양 엘몽끄 병목안로 20"},{"id":"samdeokpark","category":"see","name":"삼덕공원","type":"가벼운 산책 · 어린이 놀이","location":"안양시 만안구 삼덕로 106","description":"옛 삼덕제지 부지에 조성된 동네 공원. 시장 방문 중 잠시 쉬기 좋은 곳입니다.","tag":"시장 근처","query":"안양 삼덕공원 삼덕로 106"},{"id":"artpark","category":"see","name":"안양예술공원 · APAP8","type":"공공미술 · 야간 미디어아트","location":"안양시 만안구 예술공원 일대","description":"공공미술과 자연 산책을 함께 즐기는 별도 이동 후보. APAP8 전시는 2026.11.29까지, 야외 미디어아트는 화~일 19~22시입니다.","tag":"특별 추천","query":"안양예술공원 안양파빌리온"},{"id":"museum","category":"see","name":"김중업건축박물관","type":"건축 · 디자인 전시","location":"안양시 만안구 예술공원로103번길 4","description":"한국 근대 건축을 살펴볼 수 있는 박물관. 안양예술공원과 연계하기 좋습니다.","tag":"건축·디자인","query":"안양 김중업건축박물관 예술공원로103번길 4"}];
 const CATEGORIES=[{id:"all",label:"전체"},{id:"market",label:"시장 먹거리"},{id:"nearby",label:"근처 맛집·카페"},{id:"see",label:"볼거리"}];
 const STORAGE_KEY="travelArchive:anyang-market:picked:v1";
 const POSITION_KEY="travelArchive:anyang-market:scroll:v1";
 const APP_NAME="https://travel-plan-ashen.vercel.app/trips/anyang-market-2026-11/";
 let picked=[];
 let activeCategory="all";
-let query="";
 const pickedContent=document.querySelector("#picked-content");
 const candidateContent=document.querySelector("#candidate-content");
 const filters=document.querySelector("#filters");
@@ -140,19 +133,30 @@ function makePlace(place,index,isPicked){
   article.append(top,actions);
   return article;
 }
-function matches(place){
-  const q=query.toLocaleLowerCase("ko-KR").replace(/\s+/g,"");
-  const content=[place.name,place.type,place.location,place.description,place.tag].join(" ").toLocaleLowerCase("ko-KR").replace(/\s+/g,"");
-  return (!q||content.includes(q))&&(activeCategory==="all"||activeCategory===place.category);
+function matches(place){return activeCategory==="all"||activeCategory===place.category;}
+function selectCategory(category,scrollToList){
+  if(!CATEGORIES.some(item=>item.id===category))return;
+  activeCategory=category;
+  renderPlaces();
+  if(scrollToList){
+    const reduceMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    filters.scrollIntoView({behavior:reduceMotion?"auto":"smooth",block:"start"});
+    const selected=filters.querySelector('[data-category="'+category+'"]');
+    if(selected)selected.focus({preventScroll:true});
+  }
 }
 function renderFilters(){
   filters.replaceChildren();
   CATEGORIES.forEach(cat=>{
     const btn=make("button","filter"+(cat.id===activeCategory?" active":""),cat.label);
     btn.type="button";
+    btn.dataset.category=cat.id;
     btn.setAttribute("aria-pressed",String(cat.id===activeCategory));
-    btn.addEventListener("click",function(){activeCategory=cat.id;renderPlaces();});
+    btn.addEventListener("click",function(){selectCategory(cat.id,false);});
     filters.append(btn);
+  });
+  document.querySelectorAll(".category-jump").forEach(btn=>{
+    btn.setAttribute("aria-pressed",String(btn.dataset.category===activeCategory));
   });
 }
 function renderPlaces(){
@@ -188,7 +192,9 @@ function restoreScroll(){
     }
   }catch(_){}
 }
-document.querySelector("#search").addEventListener("input",function(event){query=event.target.value;renderPlaces();});
+document.querySelectorAll(".category-jump").forEach(button=>{
+  button.addEventListener("click",()=>selectCategory(button.dataset.category,true));
+});
 window.addEventListener("pagehide",saveScroll);
 window.addEventListener("pageshow",function(event){if(event.persisted)restoreScroll();});
 picked=loadPicked();
