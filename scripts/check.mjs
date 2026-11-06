@@ -63,7 +63,7 @@ if (exactPlaceLinkCount < 1) throw new Error("nmap exact place 링크가 없습�
 const anyang = trips.find(trip => trip.id === "anyang-market-2026-11");
 if (!anyang || anyang.href !== "/trips/anyang-market-2026-11/") throw new Error("안양 목록 연결 누락");
 if (!serviceWorker.includes("/trips/anyang-market-2026-11/")) throw new Error("안양 PWA 캐시 누락");
-if (!anyangDetail.includes("const PLACES =") || !anyangDetail.includes("picked.unshift(place.id)") || !anyangDetail.includes("localStorage.setItem(STORAGE_KEY")) throw new Error("안양 선택·정렬·저장 로직 누락");
+if (!anyangDetail.includes("const PLACES =") || !anyangDetail.includes("pending.push({action:picked.includes(place.id)") || !anyangDetail.includes("flushPending()")) throw new Error("안양 가족 공통 선택·동기화 로직 누락");
 const anyangCount = (anyangDetail.match(/"category":"(?:market|nearby|see)"/g) || []).length;
 if (anyangCount !== 16) throw new Error("안양 목록 수 오류: " + anyangCount);
 const anyangIds = ["chunhajudong","seoul","jangnae","hongdukkae","pia","omuk","monyeo","nongbune","samdeokbbq","gamjatang","yuseongwon","stag","elmanque","samdeokpark","artpark","museum"];
@@ -79,15 +79,17 @@ if (!anyangDetail.includes('href="nmap://search?') || !anyangDetail.includes("fu
 if (/(?:m\.)?map\.naver\.com/.test(anyangDetail)) throw new Error("안양 지도에 웹 링크가 포함되어 있습니다.");
 
 if (!serviceWorker.includes('pathname.startsWith("/api/")')) throw new Error("인증 API의 PWA 캐시 우회 누락");
-if (!anyangDetail.includes('id="sync-strip"') || !anyangDetail.includes('id="sync-share"') || !anyangDetail.includes('id="migration-banner"')) throw new Error("가족 공유 UI 누락");
-for (const marker of ["FAMILY_KEY","QUEUE_KEY","newId()","flushPending()","fetchState()","refreshFamily()","importOriginal()"]) {
+if (!anyangDetail.includes('id="sync-strip"') || !anyangDetail.includes('id="migration-banner"') || anyangDetail.includes('id="sync-share"')) throw new Error("기존 URL 자동 공유 UI 오류");
+for (const marker of ["QUEUE_KEY","newId()","flushPending()","fetchState()","refreshFamily()","importOriginal()"]) {
   if (!anyangDetail.includes(marker)) throw new Error("가족 공유 동기화 로직 누락: " + marker);
 }
-for (const marker of ["FAMILY_SHARE_TOKEN","timingSafeEqual","BlobPreconditionFailedError","ifMatch: current.etag","allowOverwrite: false","duplicate: true","Cache-Control"]) {
+for (const marker of ["BlobNotFoundError","requested blob does not exist","BlobPreconditionFailedError","ifMatch: previous.etag","allowOverwrite: false","duplicate: true","Cache-Control"]) {
   if (!familyApi.includes(marker)) throw new Error("가족 공유 API 안전 장치 누락: " + marker);
 }
 if (!familyApi.includes('export default { fetch(request)')) throw new Error("웹 표준 요청 핸들러 누락");
+if (familyApi.includes("FAMILY_SHARE_TOKEN") || familyApi.includes("Bearer ") || anyangDetail.includes("familyToken") || anyangDetail.includes("FAMILY_KEY")) throw new Error("가족 초대·비밀키 기반 분리 저장 잔존");
+if (!anyangDetail.includes('refreshFamily(true);') || !anyangDetail.includes('fetch(API_URL,{method:"GET"')) throw new Error("일반 링크 공통 목록 자동 연결 누락");
 if (!JSON.parse(await readFile("package.json","utf8")).dependencies?.["@vercel/blob"]) throw new Error("Blob SDK 의존성 누락");
-if (!serviceWorker.includes("family-travel-v14")) throw new Error("PWA 캐시 버전 누락");
+if (!serviceWorker.includes("family-travel-v15")) throw new Error("PWA 캐시 버전 누락");
 
 console.log(`travel-plan structural checks passed · ${nmapLinkCount} nmap deep links · ${exactPlaceLinkCount} exact place links`);
