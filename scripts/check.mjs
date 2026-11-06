@@ -1,6 +1,6 @@
 import { readFile, access } from "node:fs/promises";
 
-const files = ["index.html", "trips/yeosu-2026-08/index.html", "trips/tongyeong-geoje-2026-07/index.html", "data/trips.json", "manifest.webmanifest", "vercel.json"];
+const files = ["index.html", "trips/yeosu-2026-08/index.html", "trips/tongyeong-geoje-2026-07/index.html", "trips/anyang-market-2026-11/index.html", "data/trips.json", "manifest.webmanifest", "vercel.json"];
 await Promise.all(files.map(file => access(file)));
 const trips = JSON.parse(await readFile("data/trips.json", "utf8"));
 if (!Array.isArray(trips) || trips.length < 1) throw new Error("여행 데이터가 비어 있습니다.");
@@ -8,6 +8,8 @@ const home = await readFile("index.html", "utf8");
 const detail = await readFile("trips/yeosu-2026-08/index.html", "utf8");
 const tongyeongDetail = await readFile("trips/tongyeong-geoje-2026-07/index.html", "utf8");
 const detailScript = await readFile("scripts/detail.js", "utf8");
+const anyangDetail = await readFile("trips/anyang-market-2026-11/index.html", "utf8");
+const serviceWorker = await readFile("service-worker.js", "utf8");
 const appname = "https://github.com/dpes31/travel-plan";
 if (!home.includes('id="trip-list"')) throw new Error("홈 목록 컨테이너 누락");
 for (const id of ["day1", "day2", "day3", "day1-luge", "day1-busker", "stay-rnb", "stay-goldbeach", "day2-yacht", "day2-hamel", "day2-gyeongwon", "day3-gyeongdo"]) {
@@ -56,4 +58,16 @@ for (const [name, html] of [["여수", detail], ["통영·거제", tongyeongDeta
 }
 if (nmapLinkCount < 1) throw new Error("nmap 지도 링크가 없습니다.");
 if (exactPlaceLinkCount < 1) throw new Error("nmap exact place 링크가 없습니다.");
+
+const anyang = trips.find(trip => trip.id === "anyang-market-2026-11");
+if (!anyang || anyang.href !== "/trips/anyang-market-2026-11/") throw new Error("안양 목록 연결 누락");
+if (!serviceWorker.includes("/trips/anyang-market-2026-11/")) throw new Error("안양 PWA 캐시 누락");
+if (!anyangDetail.includes("const PLACES =") || !anyangDetail.includes("picked.unshift(place.id)") || !anyangDetail.includes("localStorage.setItem(STORAGE_KEY")) throw new Error("안양 선택·정렬·저장 로직 누락");
+const anyangIds = ["chunhajudong","seoul","jangnae","hongdukkae","pia","omuk","samdeokbbq","gamjatang","stag","samdeokpark","firststreet","artpark","museum"];
+for (const id of anyangIds) {
+  if (!anyangDetail.includes('"id":"' + id + '"')) throw new Error("안양 장소 누락: " + id);
+}
+if (!anyangDetail.includes('href="nmap://search?') || !anyangDetail.includes("function nmapUrl(place)")) throw new Error("안양 네이버지도 앱 딥링크 누락");
+if (/(?:m\.)?map\.naver\.com/.test(anyangDetail)) throw new Error("안양 지도에 웹 링크가 포함되어 있습니다.");
+
 console.log(`travel-plan structural checks passed · ${nmapLinkCount} nmap deep links · ${exactPlaceLinkCount} exact place links`);
