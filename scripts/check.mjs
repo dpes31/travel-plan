@@ -10,6 +10,7 @@ const tongyeongDetail = await readFile("trips/tongyeong-geoje-2026-07/index.html
 const detailScript = await readFile("scripts/detail.js", "utf8");
 const anyangDetail = await readFile("trips/anyang-market-2026-11/index.html", "utf8");
 const serviceWorker = await readFile("service-worker.js", "utf8");
+const familyApi = await readFile("api/family-picks.js", "utf8");
 const appname = "https://github.com/dpes31/travel-plan";
 if (!home.includes('id="trip-list"')) throw new Error("홈 목록 컨테이너 누락");
 for (const id of ["day1", "day2", "day3", "day1-luge", "day1-busker", "stay-rnb", "stay-goldbeach", "day2-yacht", "day2-hamel", "day2-gyeongwon", "day3-gyeongdo"]) {
@@ -76,5 +77,17 @@ if (anyangDetail.includes('document.querySelector("#picked").hidden=chosen.lengt
 if (!anyangDetail.includes('class="picked"') || !anyangDetail.includes('class="picked-empty"') && !anyangDetail.includes('make("div","picked-empty"')) || !anyangDetail.includes('아래 후보에서 ‘이곳 선택’을 눌러보세요.')) throw new Error("빈 선택 박스 복원 누락");
 if (!anyangDetail.includes('href="nmap://search?') || !anyangDetail.includes("function nmapUrl(place)")) throw new Error("안양 네이버지도 앱 딥링크 누락");
 if (/(?:m\.)?map\.naver\.com/.test(anyangDetail)) throw new Error("안양 지도에 웹 링크가 포함되어 있습니다.");
+
+if (!serviceWorker.includes('pathname.startsWith("/api/")')) throw new Error("인증 API의 PWA 캐시 우회 누락");
+if (!anyangDetail.includes('id="sync-strip"') || !anyangDetail.includes('id="sync-share"') || !anyangDetail.includes('id="migration-banner"')) throw new Error("가족 공유 UI 누락");
+for (const marker of ["FAMILY_KEY","QUEUE_KEY","newId()","flushPending()","fetchState()","refreshFamily()","importOriginal()"]) {
+  if (!anyangDetail.includes(marker)) throw new Error("가족 공유 동기화 로직 누락: " + marker);
+}
+for (const marker of ["FAMILY_SHARE_TOKEN","timingSafeEqual","BlobPreconditionFailedError","ifMatch: current.etag","allowOverwrite: false","duplicate: true","Cache-Control"]) {
+  if (!familyApi.includes(marker)) throw new Error("가족 공유 API 안전 장치 누락: " + marker);
+}
+if (!familyApi.includes('export default { fetch(request)')) throw new Error("웹 표준 요청 핸들러 누락");
+if (!JSON.parse(await readFile("package.json","utf8")).dependencies?.["@vercel/blob"]) throw new Error("Blob SDK 의존성 누락");
+if (!serviceWorker.includes("family-travel-v14")) throw new Error("PWA 캐시 버전 누락");
 
 console.log(`travel-plan structural checks passed · ${nmapLinkCount} nmap deep links · ${exactPlaceLinkCount} exact place links`);
