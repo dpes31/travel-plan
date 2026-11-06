@@ -72,7 +72,8 @@ for (const id of anyangIds) {
 if (!anyangDetail.includes('data-category="market"') || !anyangDetail.includes('data-category="nearby"') || !anyangDetail.includes('data-category="see"') || !anyangDetail.includes("filters.scrollIntoView")) throw new Error("안양 상단 바로가기 및 자동 스크롤 누락");
 if (anyangDetail.includes('id="search"') || anyangDetail.includes('시장 먹거리 6') || anyangDetail.includes('"id":"firststreet"')) throw new Error("삭제할 검색/카운트/관광 후보 잔존");
 if (anyangDetail.includes('class="notice"') || anyangDetail.includes("선택은 방문 확정이 아닙니다.") || anyangDetail.includes("가장 최근에 선택한 장소가 맨 위에 표시됩니다.") || anyangDetail.includes("아직 선택한 장소가 없습니다.")) throw new Error("안양 중복 안내 문구 잔존");
-if (!anyangDetail.includes('document.querySelector("#picked").hidden=chosen.length===0') || !anyangDetail.includes('pickedContent.replaceChildren();')) throw new Error("안양 빈 선택 영역 제거 누락");
+if (anyangDetail.includes('document.querySelector("#picked").hidden=chosen.length===0')) throw new Error("선택 영역을 잘못 숨기는 코드가 남아 있습니다.");
+if (!anyangDetail.includes('class="picked"') || !anyangDetail.includes('class="picked-empty"') && !anyangDetail.includes('make("div","picked-empty"')) || !anyangDetail.includes('아래 후보에서 ‘이곳 선택’을 눌러보세요.')) throw new Error("빈 선택 박스 복원 누락");
 if (!anyangDetail.includes('href="nmap://search?') || !anyangDetail.includes("function nmapUrl(place)")) throw new Error("안양 네이버지도 앱 딥링크 누락");
 if (/(?:m\.)?map\.naver\.com/.test(anyangDetail)) throw new Error("안양 지도에 웹 링크가 포함되어 있습니다.");
 
