@@ -63,7 +63,7 @@ function parseChange(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const { action, operationId } = input;
   if (typeof operationId !== "string" ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(operationId)) return null;
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(operationId)) return null;
   if (action === "select" || action === "deselect") {
     if (!ALLOWED.has(input.id)) return null;
     return { action, operationId, id: input.id };
