@@ -247,7 +247,7 @@ function renderSync(){
   if(familyMode==="connecting"){
     syncMessage.textContent="가족 공통 목록 연결 중…";
   }else if(familyMode==="error"){
-    syncMessage.textContent="공유 저장소 연결 지연 · 변경 사항을 이 기기에 보관하고 재시도합니다.";
+    syncMessage.textContent=pending.length?"선택 저장 지연 · 변경 사항을 다시 전송하고 있습니다.":"공유 목록 확인 지연 · 다시 연결하고 있습니다.";
   }else{
     syncMessage.textContent=pending.length?"가족 공통 목록 · 저장 중…":"가족 공통 목록 · 동기화됨";
   }
