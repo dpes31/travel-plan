@@ -70,7 +70,7 @@ for (const id of anyangIds) {
   if (!anyangDetail.includes('"id":"' + id + '"')) throw new Error("안양 장소 누락: " + id);
 }
 if (!anyangDetail.includes('data-category="market"') || !anyangDetail.includes('data-category="nearby"') || !anyangDetail.includes('data-category="see"') || !anyangDetail.includes("filters.scrollIntoView")) throw new Error("안양 상단 바로가기 및 자동 스크롤 누락");
-if (anyangDetail.includes('id="search"') || anyangDetail.includes('시장 먹거리 6') || anyangDetail.includes('id:"firststreet"')) throw new Error("삭제할 검색/카운트/관광 후보 잔존");
+if (anyangDetail.includes('id="search"') || anyangDetail.includes('시장 먹거리 6') || anyangDetail.includes('"id":"firststreet"')) throw new Error("삭제할 검색/카운트/관광 후보 잔존");
 if (!anyangDetail.includes('href="nmap://search?') || !anyangDetail.includes("function nmapUrl(place)")) throw new Error("안양 네이버지도 앱 딥링크 누락");
 if (/(?:m\.)?map\.naver\.com/.test(anyangDetail)) throw new Error("안양 지도에 웹 링크가 포함되어 있습니다.");
 
