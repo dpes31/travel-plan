@@ -25,7 +25,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .market-map{display:inline-block;margin-top:13px;color:#d3e8dc;text-decoration:underline;text-underline-offset:4px;font-size:11px;font-weight:750}
 .content{padding:22px 18px 54px}
 .section-top{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:26px 1px 10px}.section-top h2{font-size:20px;letter-spacing:-.04em;margin:0}.section-top p{margin:5px 0 0;font-size:11px;color:var(--muted)}.section-count{font-size:12px;color:var(--teal);font-weight:800;white-space:nowrap}
-.picked{scroll-margin-top:75px;border-top:2px solid var(--forest)}
+.picked{scroll-margin-top:75px;border-top:2px solid var(--forest)}.picked-empty{padding:23px 13px;text-align:center;border:1px dashed #c8cfc9;border-radius:12px;background:rgba(255,255,255,.4);color:var(--muted);font-size:12px;line-height:1.6}
 .filters{display:flex;gap:7px;scroll-margin-top:calc(67px + env(safe-area-inset-top));overflow-x:auto;padding:14px 0 12px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{flex:none;min-height:35px;padding:0 12px;border-radius:999px;border:1px solid #d1d0c5;background:transparent;color:#64736c;font-size:11px;font-weight:800}.filter.active{background:var(--forest);color:#fff;border-color:var(--forest)}
 .place-list{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}.place{padding:15px 13px 14px;border-bottom:1px solid var(--line)}.place:last-child{border-bottom:0}.place.is-picked{background:#f4f9f5}
 .place-top{display:flex;align-items:flex-start;gap:10px}.place-no{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:8px;background:#e9efe9;color:#58746b;font-size:11px;font-weight:850}.is-picked .place-no{background:var(--forest);color:#fff}
@@ -160,7 +160,6 @@ function renderFilters(){
 function renderPlaces(){
   renderFilters();
   const chosen=picked.map(id=>PLACES.find(place=>place.id===id)).filter(Boolean);
-  document.querySelector("#picked").hidden=chosen.length===0;
   document.querySelector("#picked-count").textContent=chosen.length+"곳";
   document.querySelector("#quick-count").textContent=String(chosen.length);
   document.querySelector("#quick-nav").classList.toggle("show",chosen.length>0);
@@ -169,7 +168,7 @@ function renderPlaces(){
     chosen.forEach((place,index)=>list.append(makePlace(place,index,true)));
     pickedContent.replaceChildren(list);
   }else{
-    pickedContent.replaceChildren();
+    pickedContent.replaceChildren(make("div","picked-empty","아래 후보에서 ‘이곳 선택’을 눌러보세요."));
   }
   const unselected=PLACES.filter(place=>!picked.includes(place.id)&&matches(place));
   document.querySelector("#candidate-count").textContent=unselected.length+"곳";
