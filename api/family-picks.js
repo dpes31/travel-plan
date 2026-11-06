@@ -98,7 +98,7 @@ function applyChange(previous, op) {
     updatedAt: new Date().toISOString()
   };
 }
-export default async function handler(request) {
+async function handler(request) {
   if (request.method !== "GET" && request.method !== "POST") {
     return json({ error: "지원하지 않는 요청입니다." }, 405);
   }
@@ -156,3 +156,6 @@ export default async function handler(request) {
     return json({ error: "공유 목록을 불러오거나 저장하지 못했습니다." }, 503);
   }
 }
+
+// Web-standard Fetch handler: default bare function receives legacy Node req/res.
+export default { fetch(request) { return handler(request); } };
