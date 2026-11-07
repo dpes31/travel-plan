@@ -1,4 +1,4 @@
-import { get, head, put, BlobNotFoundError, BlobPreconditionFailedError } from "@vercel/blob";
+import { get, put, BlobNotFoundError, BlobPreconditionFailedError } from "@vercel/blob";
 
 const PATH = "family-picks/anyang-market-2026-11.json";
 const ALLOWED = new Set([
@@ -38,26 +38,25 @@ function validState(state) {
     (state.updatedAt === null || typeof state.updatedAt === "string");
 }
 async function readState() {
-  let metadata;
+  // A single uncached origin read returns the document AND its write ETag.
+  // Separate head()+cached get() calls can disagree for up to 60 seconds
+  // after an overwrite; passing that stale result to the API caused 503s.
+  let content;
   try {
-    metadata = await head(PATH);
+    content = await get(PATH, { access: "private", useCache: false });
   } catch (error) {
     if (isMissing(error)) return { value: emptyState(), etag: null };
     throw error;
   }
-  const content = await get(PATH, {
-    access: "private",
-    headers: { "Cache-Control": "no-cache" }
-  });
-  if (!content || content.statusCode !== 200 || !content.stream ||
-      content.blob.etag !== metadata.etag) {
-    const error = new Error("Stale or missing Blob read");
+  if (content === null) return { value: emptyState(), etag: null };
+  if (content.statusCode !== 200 || !content.stream || !content.blob?.etag) {
+    const error = new Error("Unexpected Blob read response");
     error.retryable = true;
     throw error;
   }
   const value = JSON.parse(await new Response(content.stream).text());
   if (!validState(value)) throw new Error("Invalid stored selection document");
-  return { value, etag: metadata.etag };
+  return { value, etag: content.blob.etag };
 }
 function parseChange(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;

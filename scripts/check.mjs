@@ -86,10 +86,11 @@ for (const marker of ["QUEUE_KEY","newId()","flushPending()","fetchState()","ref
 for (const marker of ["BlobNotFoundError","requested blob does not exist","BlobPreconditionFailedError","ifMatch: previous.etag","allowOverwrite: false","duplicate: true","Cache-Control"]) {
   if (!familyApi.includes(marker)) throw new Error("가족 공유 API 안전 장치 누락: " + marker);
 }
+if (!familyApi.includes('get(PATH, { access: "private", useCache: false })') || familyApi.includes('head(PATH)')) throw new Error("Blob 캐시 우회 및 단일 조회 적용 누락");
 if (!familyApi.includes('export default { fetch(request)')) throw new Error("웹 표준 요청 핸들러 누락");
 if (familyApi.includes("FAMILY_SHARE_TOKEN") || familyApi.includes("Bearer ") || anyangDetail.includes("familyToken") || anyangDetail.includes("FAMILY_KEY")) throw new Error("가족 초대·비밀키 기반 분리 저장 잔존");
 if (!anyangDetail.includes('refreshFamily(true);') || !anyangDetail.includes('fetch(API_URL,{method:"GET"')) throw new Error("일반 링크 공통 목록 자동 연결 누락");
 if (!JSON.parse(await readFile("package.json","utf8")).dependencies?.["@vercel/blob"]) throw new Error("Blob SDK 의존성 누락");
-if (!serviceWorker.includes("family-travel-v15")) throw new Error("PWA 캐시 버전 누락");
+if (!serviceWorker.includes("family-travel-v16")) throw new Error("PWA 캐시 버전 누락");
 
 console.log(`travel-plan structural checks passed · ${nmapLinkCount} nmap deep links · ${exactPlaceLinkCount} exact place links`);
