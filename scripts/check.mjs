@@ -91,6 +91,6 @@ if (!familyApi.includes('export default { fetch(request)')) throw new Error("웹
 if (familyApi.includes("FAMILY_SHARE_TOKEN") || familyApi.includes("Bearer ") || anyangDetail.includes("familyToken") || anyangDetail.includes("FAMILY_KEY")) throw new Error("가족 초대·비밀키 기반 분리 저장 잔존");
 if (!anyangDetail.includes('refreshFamily(true);') || !anyangDetail.includes('fetch(API_URL,{method:"GET"')) throw new Error("일반 링크 공통 목록 자동 연결 누락");
 if (!JSON.parse(await readFile("package.json","utf8")).dependencies?.["@vercel/blob"]) throw new Error("Blob SDK 의존성 누락");
-if (!serviceWorker.includes("family-travel-v16")) throw new Error("PWA 캐시 버전 누락");
+if (!serviceWorker.includes("family-travel-v17")) throw new Error("PWA 캐시 버전 누락");
 
 console.log(`travel-plan structural checks passed · ${nmapLinkCount} nmap deep links · ${exactPlaceLinkCount} exact place links`);
