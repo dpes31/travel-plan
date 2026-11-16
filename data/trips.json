@@ -46,7 +46,12 @@
       "반송정국시",
       "포항시립미술관",
       "환호공원",
-      "스틸아트"
+      "스틸아트",
+      "두호항",
+      "설머리",
+      "두무치",
+      "영일대2",
+      "환호공원 전망대"
     ],
     "matches": {
       "모리국수": "mori",
@@ -79,7 +84,12 @@
       "포항시립미술관": "museum",
       "미술관": "museum",
       "환호공원": "museum",
-      "스틸아트": "museum"
+      "스틸아트": "museum",
+      "두호항": "fireworks-seolmeori",
+      "설머리": "fireworks-seolmeori",
+      "두무치": "fireworks-seolmeori",
+      "영일대2": "fireworks-seolmeori",
+      "환호공원 전망대": "fireworks-hwanho"
     }
   },
   {
