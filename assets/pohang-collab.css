@@ -1,0 +1,15 @@
+.collab-launch{display:flex;align-items:center;gap:10px;padding:10px 0;color:#526962;font-size:13px}
+.collab-launch button,#collab button{font:inherit;cursor:pointer;border:1px solid #c9d8d2;border-radius:9px;background:#f1f6f3;color:#234b40;padding:8px 12px;min-height:40px}
+#collab button.primary,.collab-launch button{background:#17614c;color:white;border-color:#17614c}
+#collab{position:fixed;inset:0 0 0 auto;margin:0;max-width:none;width:min(100%,460px);height:100dvh;max-height:none;border:none;background:#f7faf8;color:#193b31;padding:16px;overflow:auto}
+#collab::backdrop{background:#17382c55}
+#collab header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#collab h2,#collab h3{margin:8px 0}
+#collab form{display:grid;gap:7px;margin:12px 0}
+#collab input,#collab textarea{font:inherit;padding:8px;width:100%;border:1px solid #a3b8ae;border-radius:8px;background:white}
+#collab textarea{min-height:60px;resize:vertical}
+#collab article{border:1px solid #cfddd6;background:white;padding:10px;margin:8px 0;border-radius:10px;overflow-wrap:anywhere}
+#collab article p{margin:4px 0;white-space:pre-wrap}
+#collab [hidden]{display:none}
+#collab-status{min-height:1.5em}
+#aquabelle [hidden]{display:none!important}
