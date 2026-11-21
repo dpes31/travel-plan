@@ -1,15 +1,68 @@
-.collab-launch{display:flex;align-items:center;gap:10px;padding:10px 0;color:#526962;font-size:13px}
-.collab-launch button,#collab button{font:inherit;cursor:pointer;border:1px solid #c9d8d2;border-radius:9px;background:#f1f6f3;color:#234b40;padding:8px 12px;min-height:40px}
-#collab button.primary,.collab-launch button{background:#17614c;color:white;border-color:#17614c}
-#collab{position:fixed;inset:0 0 0 auto;margin:0;max-width:none;width:min(100%,460px);height:100dvh;max-height:none;border:none;background:#f7faf8;color:#193b31;padding:16px;overflow:auto}
-#collab::backdrop{background:#17382c55}
-#collab header{display:flex;justify-content:space-between;align-items:center;gap:8px}
-#collab h2,#collab h3{margin:8px 0}
-#collab form{display:grid;gap:7px;margin:12px 0}
-#collab input,#collab textarea{font:inherit;padding:8px;width:100%;border:1px solid #a3b8ae;border-radius:8px;background:white}
-#collab textarea{min-height:60px;resize:vertical}
-#collab article{border:1px solid #cfddd6;background:white;padding:10px;margin:8px 0;border-radius:10px;overflow-wrap:anywhere}
-#collab article p{margin:4px 0;white-space:pre-wrap}
-#collab [hidden]{display:none}
-#collab-status{min-height:1.5em}
-#aquabelle [hidden]{display:none!important}
+.collab-launch { padding: 12px 0; width: 100%; }
+#collab-open {
+  appearance: none; display: flex; align-items: center; gap: 13px; text-align: left;
+  width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 19px;
+  font: inherit; font-size: 16px; color: #34554d; background: #fffefa;
+  border: 1px solid #abbdb3; border-radius: 999px; cursor: text;
+}
+.collab-search-icon { position: relative; width: 16px; height: 16px; flex: none;
+  border: 1.8px solid currentColor; border-radius: 50%; color: #427568; }
+.collab-search-icon::after { content: ""; position: absolute; width: 7px; height: 2px;
+  right: -5px; bottom: -2px; background: currentColor; transform: rotate(45deg); }
+#collab-open:focus-visible, #collab :focus-visible { outline: 3px solid #4d9384; outline-offset: 2px; }
+#collab {
+  --ink: #173c34; --green: #195e4e; --line: #d8ded7; --surface: #fffefa;
+  position: fixed; box-sizing: border-box; inset: 0 0 0 auto; margin: 0;
+  width: min(100%, 480px); max-width: 100%; height: 100dvh; max-height: none;
+  padding: 0; overflow: hidden; border: 0; background: #f5f5ef; color: var(--ink); font-size: 16px;
+}
+#collab[open] { display: flex; flex-direction: column; }
+#collab [hidden], .day-section [data-room-hidden], .day-section .stop[hidden] { display: none !important; }
+#collab::backdrop { background: #0a201c66; }
+html:has(#collab[open]) { overflow: hidden; }
+#collab :is(button,textarea,input,select) { font: inherit; box-sizing: border-box; }
+#collab button { min-height: 44px; padding: 6px 12px; cursor: pointer; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+#collab button:disabled { opacity: .5; cursor: default; }
+#collab .room-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: none;
+  padding: max(10px, env(safe-area-inset-top)) 12px 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+#collab .room-head h2 { margin: 0; text-align: center; font-size: 18px; }
+#collab .room-head button { background: transparent; border: 0; min-width: 48px; font-size: 15px; }
+#collab .room-head #room-close { font-size: 26px; line-height: 1; }
+#collab .room-feed, #collab .room-sheet { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: 18px 16px; }
+#collab .room-feed { display: flex; flex-direction: column; gap: 15px; }
+#collab .chat-row { align-self: flex-start; max-width: min(86%, 355px); }
+#collab .chat-row.mine { align-self: flex-end; }
+#collab .byline { font-size: 13px; color: #51665d; margin: 0 2px 4px; display: flex; align-items: center; gap: 6px; }
+#collab .mine .byline { justify-content: flex-end; }
+#collab time { font-size: 12px; }
+#collab .bubble { margin: 0; background: var(--surface); border: 1px solid var(--line); color: #203b34;
+  padding: 10px 13px; border-radius: 4px 15px 15px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+#collab .mine .bubble { color: white; background: var(--green); border-color: var(--green); border-radius: 15px 4px 15px 15px; }
+#collab .ai .bubble { background: #e4f0e9; border-color: #c2dbce; }
+#collab .bubble a { color: inherit; text-decoration: underline; }
+#collab .room-note { font-size: 14px; line-height: 1.5; color: #52665e; margin: 0 2px; }
+#collab .room-note:empty { display: none; }
+#collab .composer { flex: none; padding: 9px 12px max(10px, env(safe-area-inset-bottom)); background: var(--surface);
+  border-top: 1px solid var(--line); }
+#collab .compose-row { display: flex; gap: 6px; align-items: flex-end; }
+#collab .compose-row textarea { flex: 1; min-width: 0; resize: none; max-height: 120px; min-height: 44px;
+  border: 1px solid #9fb8aa; border-radius: 20px; padding: 10px 13px; }
+#collab .compose-row button { border-radius: 999px; }
+#collab .send, #collab .confirm { background: var(--green); color: #fff; border-color: var(--green); }
+#collab #edit-open { font-size: 23px; width: 44px; }
+#collab .form-error { font-size: 14px; margin: 4px 0; color: #9c371f; }
+#collab .form-error:empty { display: none; }
+#collab .proposal { background: var(--surface); border: 1px solid #bad0c4; border-left: 3px solid var(--green);
+  border-radius: 12px; padding: 13px; }
+#collab .proposal h3, #collab .room-sheet h3 { margin: 0 0 8px; font-size: 16px; }
+#collab .proposal p, #collab .history-row p { margin: 4px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+#collab .proposal del { color: #61736a; }
+#collab .choices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+#collab .room-sheet label { display: grid; gap: 4px; margin: 12px 0; font-size: 15px; }
+#collab .room-sheet :is(input,select,textarea) { width: 100%; min-width: 0; min-height: 44px; padding: 9px;
+  border: 1px solid #a6b9ad; background: white; color: var(--ink); border-radius: 9px; font-size: 16px; }
+#collab .room-sheet textarea { min-height: 68px; }
+#collab .history-row { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.room-route-extra { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--line); }
