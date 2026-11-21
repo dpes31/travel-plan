@@ -132,8 +132,8 @@ function render(state) {
   const msgs = [...knownMessages.values()];
   const answered = new Set(msgs.filter(m => m.role === "ai" && m.replyTo).map(m => m.replyTo));
   for (const p of state.proposals) if (p.source) answered.add(p.source);
-  const waiting = msgs.some(m => !m.kind && m.role !== "ai" && !answered.has(m.id));
-  $("room-pending").textContent = waiting ? "전송됨 · AI 자동 답장 미연결" : "";
+  const waiting = msgs.filter(m => !m.kind && m.role !== "ai" && !answered.has(m.id));
+  $("room-pending").textContent = waiting.length ? (waiting.every(m => state.failedReplies?.includes(m.id)) ? "AI 답장을 생성하지 못했습니다." : "전송됨 · AI 답장 대기 중") : "";
   if (state.version !== historyVersion) {
     historyVersion = state.version;
     const list = $("history-list"); list.replaceChildren();

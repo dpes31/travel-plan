@@ -2,6 +2,8 @@ import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto
 import { setTimeout as delay } from "node:timers/promises";
 import { apply, migrate, Rejected, view } from "../lib/pohang-room.js";
 
+import { pending, respond } from "../lib/pohang-responder.js";
+
 const cookieName = "__Host-pohang-member";
 const actions = new Set(["state", "messages", "proposals", "approve", "reject", "restore"]);
 const oldPath = "collab-preview/pohang-yeongdeok-2026-11-v1.json";
@@ -61,6 +63,7 @@ export function handlerFor(store, config) {
         const since = Number(url.searchParams.get("since") ?? 0);
         if (!Number.isSafeInteger(since) || since < 0) throw new Rejected(400, "메시지 번호를 확인해 주세요.");
         const { value } = await store.read();
+        if (config.wake && pending(value)) config.wake();
         return json(view(value, sender, since), 200, cookie);
       }
       if (sender !== "ai" && !config.origins.includes(request.headers.get("origin"))) {
@@ -76,7 +79,10 @@ export function handlerFor(store, config) {
         if (attempt) await delay(25 * 2 ** (attempt - 1) + Math.random() * 40);
         const { value, etag } = await store.read(true);
         const result = apply(value, sender, action, data);
-        if (result.duplicate || await store.save(etag, value)) return json(result);
+        if (result.duplicate || await store.save(etag, value)) {
+          if (action === "messages" && sender !== "ai") config.wake?.();
+          return json(result);
+        }
       }
       console.warn("pohang-collab: conditional write retries exhausted", action);
       throw new Rejected(409, "동시에 변경됐습니다. 다시 시도해 주세요.");
@@ -137,7 +143,12 @@ export default {
       return json({ error: "포항 채팅 연결을 준비하고 있습니다." }, 503);
     }
     const store = roomStore(await import("@vercel/blob"));
+    const { waitUntil } = await import("@vercel/functions");
     return handlerFor(store, {
+      wake: () => waitUntil(respond(store, async (room, message) => {
+        const { generate } = await import("../lib/pohang-inference.js");
+        return generate(room, message);
+      }).catch(err => console.error("pohang wake", err.name))),
       aiHash: env.POHANG_PREVIEW_AI_SHA256, secret: env.BLOB_READ_WRITE_TOKEN,
       legacy: { owner: env.POHANG_PREVIEW_OWNER_SHA256, partner: env.POHANG_PREVIEW_PARTNER_SHA256 },
       origins: [env.VERCEL_URL, env.VERCEL_BRANCH_URL].filter(Boolean).map(host => "https://" + host)
