@@ -133,7 +133,7 @@ function render(state) {
   const answered = new Set(msgs.filter(m => m.role === "ai" && m.replyTo).map(m => m.replyTo));
   for (const p of state.proposals) if (p.source) answered.add(p.source);
   const waiting = msgs.some(m => !m.kind && m.role !== "ai" && !answered.has(m.id));
-  $("room-pending").textContent = waiting ? "AI 답변 대기" : "";
+  $("room-pending").textContent = waiting ? "전송됨 · AI 자동 답장 미연결" : "";
   if (state.version !== historyVersion) {
     historyVersion = state.version;
     const list = $("history-list"); list.replaceChildren();

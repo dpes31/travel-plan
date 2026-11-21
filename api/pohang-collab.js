@@ -1,4 +1,5 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { setTimeout as delay } from "node:timers/promises";
 import { apply, migrate, Rejected, view } from "../lib/pohang-room.js";
 
 const cookieName = "__Host-pohang-member";
@@ -71,16 +72,59 @@ export function handlerFor(store, config) {
       let data;
       try { data = JSON.parse(raw); } catch { throw new Rejected(400, "요청 형식을 확인해 주세요."); }
       if (!data || typeof data !== "object" || Array.isArray(data)) throw new Rejected(400, "요청 형식을 확인해 주세요.");
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const { value, etag } = await store.read();
+      for (let attempt = 0; attempt < 6; attempt++) {
+        if (attempt) await delay(25 * 2 ** (attempt - 1) + Math.random() * 40);
+        const { value, etag } = await store.read(true);
         const result = apply(value, sender, action, data);
         if (result.duplicate || await store.save(etag, value)) return json(result);
       }
+      console.warn("pohang-collab: conditional write retries exhausted", action);
       throw new Rejected(409, "동시에 변경됐습니다. 다시 시도해 주세요.");
     } catch (err) {
       if (err instanceof Rejected) return json({ error: err.message }, err.status);
       console.error("pohang-collab", err?.name);
       return json({ error: "대화 저장소에 연결할 수 없습니다." }, 503);
+    }
+  };
+}
+
+export function roomStore({ get, head, put, BlobNotFoundError, BlobPreconditionFailedError }) {
+  async function existing(operation) {
+    try { return await operation; }
+    catch (err) {
+      if (err instanceof BlobNotFoundError || err?.status === 404 || err?.statusCode === 404) return null;
+      throw err;
+    }
+  }
+  async function readValue(path) {
+    const blob = await existing(get(path, { access: "private", useCache: false }));
+    if (!blob) return null;
+    if (blob.statusCode !== 200 || !blob.stream) throw new Error("Invalid Blob response");
+    return new Response(blob.stream).json();
+  }
+  return {
+    async read(forWrite = false) {
+      // Obtain the write validator before reading the uncached body. A concurrent
+      // edit after head() makes put(ifMatch) fail and the whole operation retries.
+      const metadata = forWrite ? await existing(head(roomPath)) : null;
+      if (metadata && !metadata.etag) throw new Error("Missing Blob write validator");
+      const current = await readValue(roomPath);
+      if (current) return { value: current, etag: metadata?.etag ?? null };
+      if (metadata) throw new Error("Room disappeared while reading");
+      const legacy = await readValue(oldPath);
+      return { value: migrate(legacy ?? undefined), etag: null };
+    },
+    async save(etag, value) {
+      try {
+        await put(roomPath, JSON.stringify(value), { access: "private", contentType: "application/json",
+          addRandomSuffix: false, cacheControlMaxAge: 60,
+          ...(etag ? { allowOverwrite: true, ifMatch: etag } : { allowOverwrite: false }) });
+        return true;
+      } catch (err) {
+        if (err instanceof BlobPreconditionFailedError || ["BlobConflictError", "BlobAlreadyExistsError"].includes(err?.name) ||
+            [409, 412].includes(err?.status ?? err?.statusCode)) return false;
+        throw err;
+      }
     }
   };
 }
@@ -92,37 +136,8 @@ export default {
         !/^[a-f\d]{64}$/.test(env.POHANG_PREVIEW_AI_SHA256 ?? "")) {
       return json({ error: "포항 채팅 연결을 준비하고 있습니다." }, 503);
     }
-    const { get, put, BlobNotFoundError, BlobPreconditionFailedError } = await import("@vercel/blob");
-    async function readBlob(path) {
-      let blob;
-      try { blob = await get(path, { access: "private", useCache: false }); }
-      catch (err) { if (!(err instanceof BlobNotFoundError)) throw err; }
-      if (!blob) return null;
-      if (blob.statusCode !== 200 || !blob.stream || !blob.blob.etag) throw new Error("Invalid Blob response");
-      return { value: await new Response(blob.stream).json(), etag: blob.blob.etag };
-    }
-    async function save(etag, value) {
-      try {
-        await put(roomPath, JSON.stringify(value), { access: "private", contentType: "application/json",
-          ...(etag ? { allowOverwrite: true, ifMatch: etag } : { allowOverwrite: false }) });
-        return true;
-      } catch (err) {
-        if (err instanceof BlobPreconditionFailedError || err?.name === "BlobAlreadyExistsError" ||
-            [409, 412].includes(err?.status ?? err?.statusCode)) return false;
-        throw err;
-      }
-    }
-    async function read() {
-      const current = await readBlob(roomPath);
-      if (current) return current;
-      // Only one simultaneous request can initialize the new schema. Older deployments keep their original format.
-      const previous = await readBlob(oldPath);
-      await save(null, migrate(previous?.value));
-      const initialized = await readBlob(roomPath);
-      if (!initialized) throw new Error("Room initialization failed");
-      return initialized;
-    }
-    return handlerFor({ read, save }, {
+    const store = roomStore(await import("@vercel/blob"));
+    return handlerFor(store, {
       aiHash: env.POHANG_PREVIEW_AI_SHA256, secret: env.BLOB_READ_WRITE_TOKEN,
       legacy: { owner: env.POHANG_PREVIEW_OWNER_SHA256, partner: env.POHANG_PREVIEW_PARTNER_SHA256 },
       origins: [env.VERCEL_URL, env.VERCEL_BRANCH_URL].filter(Boolean).map(host => "https://" + host)

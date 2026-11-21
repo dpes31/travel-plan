@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash, randomBytes } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { handlerFor } from "../api/pohang-collab.js";
+import { handlerFor, roomStore } from "../api/pohang-collab.js";
 import { migrate } from "../lib/pohang-room.js";
 import { stops } from "../lib/pohang-stops.js";
 
@@ -66,4 +66,41 @@ for (const [id, item] of Object.entries(stops)) {
   const article = html.match(new RegExp('<article[^>]*id="' + id + '"[^>]*>([\\s\\S]*?)</article>'))?.[1];
   assert.ok(article?.includes("<h3>" + item.title + "</h3>") && article.includes(item.time), id);
 }
+
+// Exercise the storage adapter used in Preview. The validator for a write
+// comes from the Blob metadata API even if the delivered representation differs.
+class MissingBlob extends Error {}
+class WriteConflict extends Error {}
+const legacyRoom = { messages: [{ id: 1, role: "owner", body: "기존 질문", request_id: "old" }] };
+let stored, sequence = 0, changeOnRead = false, heads = 0;
+const adapter = roomStore({
+  BlobNotFoundError: MissingBlob, BlobPreconditionFailedError: WriteConflict,
+  async head() {
+    heads++;
+    if (!stored) throw new MissingBlob();
+    return { etag: String(sequence) };
+  },
+  async get(path, options) {
+    assert.equal(options.useCache, false);
+    if (changeOnRead) { sequence++; changeOnRead = false; }
+    const body = path.endsWith("-v1.json") ? legacyRoom : stored;
+    return body ? { statusCode: 200, stream: new Response(JSON.stringify(body)).body,
+      blob: { etag: "delivery-tag" } } : null;
+  },
+  async put(path, body, options) {
+    if (stored ? options.ifMatch !== String(sequence) : options.allowOverwrite !== false) throw new WriteConflict();
+    stored = JSON.parse(body); sequence++;
+  }
+});
+assert.equal((await adapter.read()).value.messages[0].body, "기존 질문");
+assert.equal(heads, 0);
+assert.equal(stored, undefined);
+const initial = await adapter.read(true);
+assert.equal(await adapter.save(initial.etag, initial.value), true);
+assert.equal(await adapter.save(initial.etag, initial.value), false);
+changeOnRead = true;
+const race = await adapter.read(true);
+assert.equal(await adapter.save(race.etag, race.value), false);
+const retry = await adapter.read(true);
+assert.equal(await adapter.save(retry.etag, retry.value), true);
 console.log("Pohang room: code-free entry, independent browsers, legacy chat, AI reply, proposal, approval, add, remove, restore, concurrency, and itinerary bindings passed");
