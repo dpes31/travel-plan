@@ -37,8 +37,8 @@
     },
     "api/pohang-collab.js": {
       "maxDuration": 200,
-      "includeFiles": "node_modules/{@node-llama-cpp/linux-x64,node-llama-cpp/dist,node-llama-cpp/bins}/**",
-      "excludeFiles": "node_modules/{@node-llama-cpp/linux-x64-*,node-llama-cpp/llama}/**"
+      "includeFiles": "node_modules/{@node-llama-cpp/linux-x64,node-llama-cpp/dist,node-llama-cpp/bins,node-llama-cpp/llama}/**",
+      "excludeFiles": "node_modules/@node-llama-cpp/linux-x64-*/**"
     }
   }
 }
