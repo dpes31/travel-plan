@@ -80,7 +80,7 @@ export function handlerFor(store, config) {
         const { value, etag } = await store.read(true);
         const result = apply(value, sender, action, data);
         if (result.duplicate || await store.save(etag, value)) {
-          if (action === "messages" && sender !== "ai") config.wake?.();
+          if (action === "messages" && sender !== "ai") await config.run?.();
           return json(result);
         }
       }
@@ -144,11 +144,11 @@ export default {
     }
     const store = roomStore(await import("@vercel/blob"));
     const { waitUntil } = await import("@vercel/functions");
-    return handlerFor(store, {
-      wake: () => waitUntil(respond(store, async (room, message) => {
+    const run = () => respond(store, async (room, message) => {
         const { generate } = await import("../lib/pohang-inference.js");
         return generate(room, message);
-      }).catch(err => console.error("pohang wake", err.name))),
+      }).catch(err => console.error("pohang wake", err.name));
+    return handlerFor(store, { run, wake: () => waitUntil(run()),
       aiHash: env.POHANG_PREVIEW_AI_SHA256, secret: env.BLOB_READ_WRITE_TOKEN,
       legacy: { owner: env.POHANG_PREVIEW_OWNER_SHA256, partner: env.POHANG_PREVIEW_PARTNER_SHA256 },
       origins: [env.VERCEL_URL, env.VERCEL_BRANCH_URL].filter(Boolean).map(host => "https://" + host)
